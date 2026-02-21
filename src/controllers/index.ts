@@ -3,3 +3,4 @@ export * as customerController from "./customer.controller";
 export * as supplierController from "./suppliers.controller";
 export * as roleController from "./roles.controller";
 export * as userController from "./user.controller";
+export * as auditLogController from "./auditLog.controller";

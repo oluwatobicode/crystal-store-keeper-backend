@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from "express";
 import helmet from "helmet";
 import { connectDb } from "./config/db.config";
 import {
+  auditLogsRoutes,
   productRoutes,
   rolesRoutes,
   supplierRoutes,
@@ -38,6 +39,7 @@ app.use("/api/v1/suppliers", supplierRoutes);
 app.use("/api/v1/customers", customerRoutes);
 app.use("/api/v1/roles", rolesRoutes);
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/logs", auditLogsRoutes);
 
 // starting a server
 app.listen(port, () => {

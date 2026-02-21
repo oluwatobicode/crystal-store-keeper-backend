@@ -8,8 +8,8 @@ Products — CRUD plus SKU generation, that's it for now --done
 🟡 Medium — CRUD plus some logic
 
 Settings — single document, just upsert, but touching it affects the whole system
-Users — CRUD plus bcrypt hashing, mustChangePassword flag
-Audit Logs — read only, just query and filter, but you need logAudit() wired up first
+Users — CRUD plus bcrypt hashing, mustChangePassword flag --done
+Audit Logs — read only, just query and filter, but you need logAudit() wired up first --done
 Dashboard summary — aggregating data from multiple collections
 
 🟠 Moderate — Real business logic involved

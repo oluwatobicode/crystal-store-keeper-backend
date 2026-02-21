@@ -88,6 +88,15 @@ export const ROLE_MESSAGES = {
   CANNOT_MODIFY_DEFAULT: "Default role name cannot be changed",
   INVALID_PERMISSIONS: "One or more permissions are invalid",
 };
+
+export const AUDIT_LOG_MESSAGES = {
+  CREATED: "Audit log created successfully",
+  FETCHED: "Audit logs fetched successfully",
+  FETCHED_ONE: "Audit log fetched successfully",
+  NOT_FOUND: "Audit log not found",
+  MISSING_FIELDS: "Action and resource type are required",
+};
+
 export const API_VERSION = "v1";
 
 // Time constants (in seconds)
