@@ -481,48 +481,57 @@ Authorization: Bearer <access_token>
 ```
 
 ```
-AUTH
-POST   /api/auth/login                     → { accessToken, refreshToken, user }
-POST   /api/auth/refresh                   → { accessToken }
-POST   /api/auth/logout
-POST   /api/auth/change-password           [authenticated]
 
-USERS
+USERS --done
 GET    /api/users                          [users.manage]
 POST   /api/users                          [users.manage]
 PUT    /api/users/:id                      [users.manage]
 DELETE /api/users/:id                      [users.manage]
 PATCH  /api/users/:id/status               [users.manage]
 
-ROLES -done
+ROLES --done
 GET    /api/roles                          [users.manage]
 POST   /api/roles                          [users.manage]
 PUT    /api/roles/:id                      [users.manage]
 DELETE /api/roles/:id                      [users.manage]  — blocked if isDefault: true
 
-CUSTOMERS -done
+CUSTOMERS --done
 GET    /api/customers                      [customers.view]
 POST   /api/customers                      [customers.manage]
 GET    /api/customers/:id                  [customers.view]
 PUT    /api/customers/:id                  [customers.manage]
 GET    /api/customers/:id/transactions     [customers.view]
 
-PRODUCTS - done
+PRODUCTS --done
 GET    /api/products                       [inventory.view]  ?search=&brand=&location=
 POST   /api/products                       [inventory.manage]
 GET    /api/products/:id                   [inventory.view]
 PUT    /api/products/:id                   [inventory.manage]
 DELETE /api/products/:id                   [inventory.manage]
 
-SUPPLIERS - done
+SUPPLIERS --done
 GET    /api/suppliers                      [inventory.view]
 POST   /api/suppliers                      [inventory.manage]
 PUT    /api/suppliers/:id                  [inventory.manage]
 DELETE /api/suppliers/:id                  [inventory.manage]
 
+SETTINGS --done
+GET    /api/settings                       [authenticated]
+PUT    /api/settings                       [settings.manage]
+
+AUDIT LOGS -- done
+GET    /api/audit-logs                     [audit.view]    ?from=&to=&category=&userId=
+GET    /api/audit-logs/export              [audit.view]
+
+AUTH
+POST   /api/auth/login                     → { accessToken, refreshToken, user }
+POST   /api/auth/refresh                   → { accessToken }
+POST   /api/auth/logout
+POST   /api/auth/change-password           [authenticated]
+
 INVENTORY
-POST   /api/inventory/receive              [inventory.receive] → adds stock + writes StockMovement
-POST   /api/inventory/adjust               [inventory.adjust]  → corrects stock + writes StockMovement + Adjustment
+POST   /api/inventory/receive              [inventory.receive] → adds stock + writes StockMovement --done
+POST   /api/inventory/adjust               [inventory.adjust]  → corrects stock + writes StockMovement + Adjustment --done
 GET    /api/inventory/reorder-alerts       [inventory.view]    → products where currentStock <= reorderLevel
 GET    /api/inventory/movements            [inventory.view]    → stock movement log ?from=&to=&productId=
 
@@ -542,14 +551,6 @@ GET    /api/reports/sales                  [reports.view]  ?from=&to=
 GET    /api/reports/products               [reports.view]  ?from=&to=
 GET    /api/reports/payment-methods        [reports.view]  ?from=&to=
 GET    /api/reports/stock-movements        [reports.view]  ?from=&to=
-
-SETTINGS
-GET    /api/settings                       [authenticated]
-PUT    /api/settings                       [settings.manage]
-
-AUDIT LOGS - done
-GET    /api/audit-logs                     [audit.view]    ?from=&to=&category=&userId=
-GET    /api/audit-logs/export              [audit.view]
 
 BACKUP
 POST   /api/backup/export/customers        [backup.manage] → CSV download

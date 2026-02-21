@@ -97,6 +97,23 @@ export const AUDIT_LOG_MESSAGES = {
   MISSING_FIELDS: "Action and resource type are required",
 };
 
+export const BUSINESS_MESSAGES = {
+  UPDATED: "Business profile updated successfully",
+  FETCHED: "Business profile fetched successfully",
+  NOT_FOUND: "Business profile not found",
+};
+
+export const INVENTORY_MESSAGES = {
+  STOCK_RECEIVED: "Stock received successfully",
+  STOCK_ADJUSTED: "Stock adjusted successfully",
+  PRODUCT_NOT_FOUND: "Product not found",
+  MISSING_RECEIVE_FIELDS: "Product ID, quantity, and supplier ID are required",
+  MISSING_ADJUST_FIELDS:
+    "Product ID, adjustment type, quantity change, and reason are required",
+  INVALID_QUANTITY: "Quantity must be a positive number",
+  INSUFFICIENT_STOCK: "Insufficient stock for this adjustment",
+};
+
 export const API_VERSION = "v1";
 
 // Time constants (in seconds)

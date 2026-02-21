@@ -3,8 +3,10 @@ import helmet from "helmet";
 import { connectDb } from "./config/db.config";
 import {
   auditLogsRoutes,
+  inventoryRoutes,
   productRoutes,
   rolesRoutes,
+  settingsRoutes,
   supplierRoutes,
   userRoutes,
 } from "./routes";
@@ -40,6 +42,8 @@ app.use("/api/v1/customers", customerRoutes);
 app.use("/api/v1/roles", rolesRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/logs", auditLogsRoutes);
+app.use("/api/v1/settings", settingsRoutes);
+app.use("/api/v1/inventory", inventoryRoutes);
 
 // starting a server
 app.listen(port, () => {

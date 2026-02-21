@@ -4,3 +4,5 @@ export * as supplierController from "./suppliers.controller";
 export * as roleController from "./roles.controller";
 export * as userController from "./user.controller";
 export * as auditLogController from "./auditLog.controller";
+export * as settingsController from "./setting.controller";
+export * as inventoryController from "./inventory.controller";
