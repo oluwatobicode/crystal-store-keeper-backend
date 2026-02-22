@@ -523,17 +523,12 @@ AUDIT LOGS -- done
 GET    /api/audit-logs                     [audit.view]    ?from=&to=&category=&userId=
 GET    /api/audit-logs/export              [audit.view]
 
-AUTH
-POST   /api/auth/login                     → { accessToken, refreshToken, user }
-POST   /api/auth/refresh                   → { accessToken }
-POST   /api/auth/logout
-POST   /api/auth/change-password           [authenticated]
-
 INVENTORY
 POST   /api/inventory/receive              [inventory.receive] → adds stock + writes StockMovement --done
 POST   /api/inventory/adjust               [inventory.adjust]  → corrects stock + writes StockMovement + Adjustment --done
 GET    /api/inventory/reorder-alerts       [inventory.view]    → products where currentStock <= reorderLevel
 GET    /api/inventory/movements            [inventory.view]    → stock movement log ?from=&to=&productId=
+
 
 SALES
 GET    /api/sales                          [transactions.view] ?from=&to=&method=&customerId=
@@ -542,9 +537,13 @@ GET    /api/sales/:id                      [transactions.view]
 GET    /api/sales/:id/invoice              [transactions.view] → full invoice data for PDF render/print
 
 DASHBOARD
-GET    /api/dashboard/summary              [dashboard.view]
-  → returns: todaySales, cashInRegister, pendingPaymentsCount,
-             lowStockCount, recentTransactions[], lowStockItems[]
+GET    /api/dashboard/summary              [dashboard.view] → returns: todaySales, cashInRegister, pendingPaymentsCount, lowStockCount, recentTransactions[], lowStockItems[]
+
+AUTH
+POST   /api/auth/login                     → { accessToken, refreshToken, user }
+POST   /api/auth/refresh                   → { accessToken }
+POST   /api/auth/logout
+POST   /api/auth/change-password           [authenticated]
 
 REPORTS
 GET    /api/reports/sales                  [reports.view]  ?from=&to=
