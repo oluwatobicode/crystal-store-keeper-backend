@@ -107,6 +107,7 @@ export const INVENTORY_MESSAGES = {
   STOCK_RECEIVED: "Stock received successfully",
   STOCK_ADJUSTED: "Stock adjusted successfully",
   PRODUCT_NOT_FOUND: "Product not found",
+  STOCK_SUCCESS: "Fetched successfully",
   MISSING_RECEIVE_FIELDS: "Product ID, quantity, and supplier ID are required",
   MISSING_ADJUST_FIELDS:
     "Product ID, adjustment type, quantity change, and reason are required",

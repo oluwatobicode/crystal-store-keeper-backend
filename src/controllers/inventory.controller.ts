@@ -201,3 +201,83 @@ export const adjustStock = async (
     );
   }
 };
+
+export const getInventoryMovements = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { from, to, productId } = req.query;
+    const filter: Record<string, unknown> = {};
+
+    if (productId) filter.productId = productId;
+
+    if (from || to) {
+      filter.createdAt = {} as Record<string, Date>;
+
+      if (from) {
+        (filter.createdAt as Record<string, Date>).$gte = new Date(
+          from as string,
+        );
+      }
+
+      if (to) {
+        (filter.createdAt as Record<string, Date>).$lte = new Date(
+          to as string,
+        );
+      }
+    }
+
+    const movements = await StockMovement.find(filter)
+      .sort({
+        createdAt: -1,
+      })
+      .populate("productId");
+
+    return sendSuccess(
+      res,
+      HTTP_STATUS.OK,
+      movements.length > 0
+        ? INVENTORY_MESSAGES.STOCK_SUCCESS
+        : "No inventory found",
+      movements,
+    );
+  } catch (error) {
+    console.error("get all inventory movements error:", error);
+    return sendError(
+      res,
+      HTTP_STATUS.INTERNAL_SERVER_ERROR,
+      ERROR_MESSAGES.SERVER_ERROR,
+    );
+  }
+};
+
+export const getLowStockProducts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const products = await Product.find({
+      $expr: {
+        $lte: ["$currentStock", "$reorderLevel"],
+      },
+      isActive: true,
+    });
+
+    return sendSuccess(
+      res,
+      HTTP_STATUS.OK,
+      "Reorder alerts fetched successfully",
+      products,
+    );
+  } catch (error) {
+    console.error("Reorder alerts error:", error);
+    return sendError(
+      res,
+      HTTP_STATUS.INTERNAL_SERVER_ERROR,
+      ERROR_MESSAGES.SERVER_ERROR,
+    );
+  }
+};
