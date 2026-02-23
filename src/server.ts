@@ -5,13 +5,14 @@ import {
   auditLogsRoutes,
   inventoryRoutes,
   productRoutes,
+  reportRoutes,
   rolesRoutes,
   settingsRoutes,
   supplierRoutes,
   userRoutes,
+  customerRoutes,
 } from "./routes";
 import cors from "cors";
-import customerRoutes from "./routes/customer.routes";
 
 const app: Application = express();
 const port = process.env.PORT || 5000;
@@ -29,7 +30,7 @@ connectDb();
 // Test route
 app.get("/", (req: Request, res: Response) => {
   res.json({
-    message: "Jewelry E-Commerce API",
+    message: "Crystal Stock Keeper API",
     version: "1.0.0",
     status: "running",
   });
@@ -44,6 +45,7 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/logs", auditLogsRoutes);
 app.use("/api/v1/settings", settingsRoutes);
 app.use("/api/v1/inventory", inventoryRoutes);
+app.use("/api/v1/reports", reportRoutes);
 
 // starting a server
 app.listen(port, () => {

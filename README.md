@@ -523,18 +523,18 @@ AUDIT LOGS -- done
 GET    /api/audit-logs                     [audit.view]    ?from=&to=&category=&userId=
 GET    /api/audit-logs/export              [audit.view]
 
-INVENTORY
-POST   /api/inventory/receive              [inventory.receive] → adds stock + writes StockMovement --done
-POST   /api/inventory/adjust               [inventory.adjust]  → corrects stock + writes StockMovement + Adjustment --done
+INVENTORY --done
+POST   /api/inventory/receive              [inventory.receive] → adds stock + writes StockMovement
+POST   /api/inventory/adjust               [inventory.adjust]  → corrects stock + writes StockMovement + Adjustment
 GET    /api/inventory/reorder-alerts       [inventory.view]    → products where currentStock <= reorderLevel
 GET    /api/inventory/movements            [inventory.view]    → stock movement log ?from=&to=&productId=
 
 
-SALES
-GET    /api/sales                          [transactions.view] ?from=&to=&method=&customerId=
-POST   /api/sales                          [pos.operate]       → creates sale + deducts stock + writes StockMovements
-GET    /api/sales/:id                      [transactions.view]
-GET    /api/sales/:id/invoice              [transactions.view] → full invoice data for PDF render/print
+REPORTS
+GET    /api/reports/sales                  [reports.view]  ?from=&to=
+GET    /api/reports/products               [reports.view]  ?from=&to=
+GET    /api/reports/payment-methods        [reports.view]  ?from=&to=
+GET    /api/reports/stock-movements        [reports.view]  ?from=&to=
 
 DASHBOARD
 GET    /api/dashboard/summary              [dashboard.view] → returns: todaySales, cashInRegister, pendingPaymentsCount, lowStockCount, recentTransactions[], lowStockItems[]
@@ -545,11 +545,13 @@ POST   /api/auth/refresh                   → { accessToken }
 POST   /api/auth/logout
 POST   /api/auth/change-password           [authenticated]
 
-REPORTS
-GET    /api/reports/sales                  [reports.view]  ?from=&to=
-GET    /api/reports/products               [reports.view]  ?from=&to=
-GET    /api/reports/payment-methods        [reports.view]  ?from=&to=
-GET    /api/reports/stock-movements        [reports.view]  ?from=&to=
+SALES
+GET    /api/sales                          [transactions.view] ?from=&to=&method=&customerId=
+POST   /api/sales                          [pos.operate]       → creates sale + deducts stock + writes StockMovements
+GET    /api/sales/:id                      [transactions.view]
+GET    /api/sales/:id/invoice              [transactions.view] → full invoice data for PDF render/print
+
+
 
 BACKUP
 POST   /api/backup/export/customers        [backup.manage] → CSV download
