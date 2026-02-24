@@ -10,14 +10,14 @@ Products — CRUD plus SKU generation, that's it for now --done
 Settings — single document, just upsert, but touching it affects the whole system
 Users — CRUD plus bcrypt hashing, mustChangePassword flag --done
 Audit Logs — read only, just query and filter, but you need logAudit() wired up first --done
-Dashboard summary — aggregating data from multiple collections
+Dashboard summary — aggregating data from multiple collections --done
 
 🟠 Moderate — Real business logic involved
 
-Inventory (receive stock) — update currentStock, write StockMovement
-Inventory (adjustments) — same but with adjustment types and reasons
+Inventory (receive stock) — update currentStock, write StockMovement --done
+Inventory (adjustments) — same but with adjustment types and reasons --done
 Reorder alerts — calculate daysLeft and suggestedOrder per product
-Reports — aggregation pipelines with date filtering
+Reports — aggregation pipelines with date filtering --done
 
 🔴 Hard — Multiple things happening at once
 

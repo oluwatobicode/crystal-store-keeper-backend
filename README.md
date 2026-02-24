@@ -530,14 +530,15 @@ GET    /api/inventory/reorder-alerts       [inventory.view]    → products wher
 GET    /api/inventory/movements            [inventory.view]    → stock movement log ?from=&to=&productId=
 
 
-REPORTS
+REPORTS --done
 GET    /api/reports/sales                  [reports.view]  ?from=&to=
 GET    /api/reports/products               [reports.view]  ?from=&to=
 GET    /api/reports/payment-methods        [reports.view]  ?from=&to=
 GET    /api/reports/stock-movements        [reports.view]  ?from=&to=
 
 DASHBOARD
-GET    /api/dashboard/summary              [dashboard.view] → returns: todaySales, cashInRegister, pendingPaymentsCount, lowStockCount, recentTransactions[], lowStockItems[]
+GET    /api/dashboard/summary              [dashboard.view] →
+returns: todaySales, cashInRegister, pendingPaymentsCount, lowStockCount, recentTransactions[], lowStockItems[]
 
 AUTH
 POST   /api/auth/login                     → { accessToken, refreshToken, user }

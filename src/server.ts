@@ -11,6 +11,7 @@ import {
   supplierRoutes,
   userRoutes,
   customerRoutes,
+  dashboardRoutes,
 } from "./routes";
 import cors from "cors";
 
@@ -46,6 +47,7 @@ app.use("/api/v1/logs", auditLogsRoutes);
 app.use("/api/v1/settings", settingsRoutes);
 app.use("/api/v1/inventory", inventoryRoutes);
 app.use("/api/v1/reports", reportRoutes);
+app.use("/api/v1/dashboard", dashboardRoutes);
 
 // starting a server
 app.listen(port, () => {
