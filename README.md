@@ -552,7 +552,6 @@ GET    /api/sales/:id                      [transactions.view]
 GET    /api/sales/:id/invoice              [transactions.view] → full invoice data for PDF render/print
 
 
-
 BACKUP
 POST   /api/backup/export/customers        [backup.manage] → CSV download
 POST   /api/backup/export/inventory        [backup.manage] → CSV download

@@ -1,6 +1,10 @@
 import { NextFunction, Request, Response } from "express";
+import Sale from "../models/Sale";
+import { sendSuccess } from "../utils/response";
+import { HTTP_STATUS } from "../config";
+import Product from "../models/Product";
 
-export const salesAnalysisReport = (
+export const salesAnalysisReport = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -25,35 +29,60 @@ export const salesAnalysisReport = (
         );
       }
     }
-  } catch (error) {
-    console.log(error);
-  }
-};
 
-export const productAnalysisReport = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const { from, to } = req.query;
-    const filter: Record<string, unknown> = {};
+    const sale = await Sale.aggregate([
+      { $match: filter },
+      {
+        $group: {
+          _id: null,
+          totalSale: { $sum: "$grandTotal" },
+          totalTransactions: { $sum: 1 },
+          averageTransactionsValue: { $avg: "$grandTotal" },
+        },
+      },
+    ]);
 
-    if (from || to) {
-      filter.createdAt = {} as Record<string, Date>;
+    const dailySalesTransactions = await Sale.aggregate([
+      // first match the filter
+      { $match: filter },
+      // group by day
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          totalSale: { $sum: "$grandTotal" },
+          totalTransactions: { $sum: 1 },
+          averageTransactionsValue: { $avg: "$grandTotal" },
+        },
+      },
 
-      if (from) {
-        (filter.createdAt as Record<string, Date>).$gte = new Date(
-          from as string,
-        );
-      }
+      // sort by date (newest first)
+      { $sort: { _id: -1 } },
 
-      if (to) {
-        (filter.createdAt as Record<string, Date>).$lte = new Date(
-          to as string,
-        );
-      }
-    }
+      // rename _id to date for cleaner response
+      {
+        $project: {
+          _id: 0,
+          date: "$_id",
+          totalSale: 1,
+          totalTransactions: 1,
+          averageTransactionsValue: 1,
+        },
+      },
+    ]);
+
+    return sendSuccess(
+      res,
+      HTTP_STATUS.OK,
+      "Sales analysis report generated successfully",
+      {
+        summary: sale[0] || {
+          totalSale: 0,
+          totalTransactions: 0,
+          averageTransactionsValue: 0,
+        },
+        dailyBreakdown: dailySalesTransactions,
+      },
+    );
   } catch (error) {
     console.log(error);
   }
@@ -66,6 +95,35 @@ export const paymentMethodReport = (
 ) => {
   try {
     const { from, to } = req.query;
+    const filter: Record<string, unknown> = {};
+
+    if (from || to) {
+      filter.createdAt = {} as Record<string, Date>;
+
+      if (from) {
+        (filter.createdAt as Record<string, Date>).$gte = new Date(
+          from as string,
+        );
+      }
+
+      if (to) {
+        (filter.createdAt as Record<string, Date>).$lte = new Date(
+          to as string,
+        );
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const productAnalysisReport = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { from, to } = req.query;
 
     const filter: Record<string, unknown> = {};
 
@@ -84,6 +142,56 @@ export const paymentMethodReport = (
         );
       }
     }
+
+    const products = await Sale.aggregate([
+      // match the filter
+      { $match: filter },
+      // first unwind the data
+      { $unwind: "$items" },
+      // then we group by product id and caculate the total qunatity sold
+      {
+        $group: {
+          _id: "$items.productId",
+          productName: {
+            $first: "$items.productName",
+          },
+          totalQuantitySold: {
+            $sum: "$items.quantity",
+          },
+          totalTransactions: {
+            $sum: 1,
+          },
+          totalRevenue: {
+            $sum: "$items.total",
+          },
+          avgValue: {
+            $avg: "$items.total",
+          },
+        },
+      },
+
+      // sort by total quantity sold
+      { $sort: { totalQuantitySold: -1 } },
+
+      {
+        $project: {
+          _id: 0,
+          productId: "$_id",
+          productName: 1,
+          totalQuantitySold: 1,
+          totalTransactions: 1,
+          totalRevenue: 1,
+          avgValue: 1,
+        },
+      },
+    ]);
+
+    return sendSuccess(
+      res,
+      HTTP_STATUS.OK,
+      "Product analysis report generated successfully",
+      products,
+    );
   } catch (error) {
     console.log(error);
   }
