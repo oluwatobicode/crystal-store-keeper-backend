@@ -50,12 +50,9 @@ export const createUser = async (
       newUser,
     );
   } catch (error) {
-    console.log(error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    // eslint-disable-next-line no-console
+    console.error("Create user error:", error);
+    return next(error);
   }
 };
 
@@ -66,12 +63,9 @@ export const deleteUser = async (
 ) => {
   try {
   } catch (error) {
-    console.log(error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    // eslint-disable-next-line no-console
+    console.error("Delete user error:", error);
+    return next(error);
   }
 };
 export const updateUser = async (
@@ -101,12 +95,9 @@ export const updateUser = async (
 
     return sendSuccess(res, HTTP_STATUS.OK, USER_MESSAGES.UPDATED, updateUser);
   } catch (error) {
-    console.log(error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    // eslint-disable-next-line no-console
+    console.error("Update user error:", error);
+    return next(error);
   }
 };
 export const getAllUsers = async (
@@ -124,12 +115,9 @@ export const getAllUsers = async (
       users,
     );
   } catch (error) {
-    console.log(error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    // eslint-disable-next-line no-console
+    console.error("Get all users error:", error);
+    return next(error);
   }
 };
 
@@ -147,11 +135,8 @@ export const getUser = async (
 
     return sendSuccess(res, HTTP_STATUS.OK, USER_MESSAGES.FETCHED_ONE, user);
   } catch (error) {
-    console.log(error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    // eslint-disable-next-line no-console
+    console.error("Get user error:", error);
+    return next(error);
   }
 };

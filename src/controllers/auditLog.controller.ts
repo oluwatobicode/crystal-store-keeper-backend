@@ -38,12 +38,9 @@ export const getAllLogs = async (
       logs,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Get all logs error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -94,11 +91,8 @@ export const exportLogs = async (
 
     return res.send(csv);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Export logs error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };

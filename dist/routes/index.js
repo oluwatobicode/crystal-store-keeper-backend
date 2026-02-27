@@ -1,0 +1,26 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.dashboardRoutes = exports.reportRoutes = exports.inventoryRoutes = exports.settingsRoutes = exports.auditLogsRoutes = exports.userRoutes = exports.rolesRoutes = exports.customerRoutes = exports.supplierRoutes = exports.productRoutes = void 0;
+var product_routes_1 = require("./product.routes");
+Object.defineProperty(exports, "productRoutes", { enumerable: true, get: function () { return __importDefault(product_routes_1).default; } });
+var supplier_routes_1 = require("./supplier.routes");
+Object.defineProperty(exports, "supplierRoutes", { enumerable: true, get: function () { return __importDefault(supplier_routes_1).default; } });
+var customer_routes_1 = require("./customer.routes");
+Object.defineProperty(exports, "customerRoutes", { enumerable: true, get: function () { return __importDefault(customer_routes_1).default; } });
+var roles_routes_1 = require("./roles.routes");
+Object.defineProperty(exports, "rolesRoutes", { enumerable: true, get: function () { return __importDefault(roles_routes_1).default; } });
+var user_routes_1 = require("./user.routes");
+Object.defineProperty(exports, "userRoutes", { enumerable: true, get: function () { return __importDefault(user_routes_1).default; } });
+var auditLog_routes_1 = require("./auditLog.routes");
+Object.defineProperty(exports, "auditLogsRoutes", { enumerable: true, get: function () { return __importDefault(auditLog_routes_1).default; } });
+var settings_routes_1 = require("./settings.routes");
+Object.defineProperty(exports, "settingsRoutes", { enumerable: true, get: function () { return __importDefault(settings_routes_1).default; } });
+var inventory_routes_1 = require("./inventory.routes");
+Object.defineProperty(exports, "inventoryRoutes", { enumerable: true, get: function () { return __importDefault(inventory_routes_1).default; } });
+var report_routes_1 = require("./report.routes");
+Object.defineProperty(exports, "reportRoutes", { enumerable: true, get: function () { return __importDefault(report_routes_1).default; } });
+var _dashboard_routes_1 = require("./ dashboard.routes");
+Object.defineProperty(exports, "dashboardRoutes", { enumerable: true, get: function () { return __importDefault(_dashboard_routes_1).default; } });

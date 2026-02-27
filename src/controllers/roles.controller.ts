@@ -58,12 +58,9 @@ export const createRole = async (
       newRole,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Create role error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -83,12 +80,9 @@ export const getAllRoles = async (
       roles,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Get all roles error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -107,12 +101,9 @@ export const getRole = async (
 
     return sendSuccess(res, HTTP_STATUS.OK, ROLE_MESSAGES.FETCHED_ONE, role);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Get role error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -183,12 +174,9 @@ export const updateRole = async (
 
     return sendSuccess(res, HTTP_STATUS.OK, ROLE_MESSAGES.UPDATED, updatedRole);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Update role error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -243,12 +231,9 @@ export const updateRolePermissions = async (
 
     return sendSuccess(res, HTTP_STATUS.OK, ROLE_MESSAGES.UPDATED, updatedRole);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Update role permissions error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -286,11 +271,8 @@ export const deleteRole = async (
 
     return sendSuccess(res, HTTP_STATUS.OK, ROLE_MESSAGES.DELETED);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Delete role error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };

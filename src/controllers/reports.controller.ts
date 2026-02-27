@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import Sale from "../models/Sale";
 import StockMovement from "../models/StockManegment";
-import { sendSuccess } from "../utils/response";
-import { HTTP_STATUS } from "../config";
+import { sendError, sendSuccess } from "../utils/response";
+import { ERROR_MESSAGES, HTTP_STATUS } from "../config";
 
 // getting the sales analysis and report
 export const salesAnalysisReport = async (
@@ -85,7 +85,9 @@ export const salesAnalysisReport = async (
       },
     );
   } catch (error) {
-    console.log(error);
+    // eslint-disable-next-line no-console
+    console.error("Sales analysis report error:", error);
+    return next(error);
   }
 };
 
@@ -170,7 +172,9 @@ export const productAnalysisReport = async (
       },
     );
   } catch (error) {
-    console.log(error);
+    // eslint-disable-next-line no-console
+    console.error("Product analysis report error:", error);
+    return next(error);
   }
 };
 
@@ -244,7 +248,9 @@ export const paymentMethodReport = async (
       },
     );
   } catch (error) {
-    console.log(error);
+    // eslint-disable-next-line no-console
+    console.error("Payment method report error:", error);
+    return next(error);
   }
 };
 
@@ -338,6 +344,8 @@ export const stockMovementReports = async (
       },
     );
   } catch (error) {
-    console.log(error);
+    // eslint-disable-next-line no-console
+    console.error("Stock movement reports error:", error);
+    return next(error);
   }
 };

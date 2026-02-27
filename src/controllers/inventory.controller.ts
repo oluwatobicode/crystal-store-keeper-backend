@@ -89,12 +89,9 @@ export const receiveStock = async (
       },
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Receive stock error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -193,12 +190,9 @@ export const adjustStock = async (
       adjustment,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Adjust stock error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -244,12 +238,9 @@ export const getInventoryMovements = async (
       movements,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("get all inventory movements error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -273,11 +264,8 @@ export const getLowStockProducts = async (
       products,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Reorder alerts error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };

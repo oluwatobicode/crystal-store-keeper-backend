@@ -70,12 +70,9 @@ export const dashboardAnalysis = async (
       },
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Dashboard analysis error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -99,12 +96,9 @@ export const getLowStockProducts = async (
       products,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Reorder alerts error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -127,11 +121,8 @@ export const getRecentTransactions = async (
       recentTransactions,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Recent transactions error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };

@@ -38,13 +38,9 @@ export const createSupplier = async (
       newSupplier,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Create supplier error:", error);
-
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -63,13 +59,9 @@ export const getAllSupplier = async (
       suppliers,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Get all suppliers error:", error);
-
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -92,12 +84,9 @@ export const getASupplier = async (
       supplier,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Get a supplier error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -135,12 +124,9 @@ export const updateSupplier = async (
       updatedSupplier,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Update supplier error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -169,11 +155,8 @@ export const deleteSupplier = async (
 
     return sendSuccess(res, HTTP_STATUS.OK, SUPPLIER_MESSAGES.DELETED);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Delete supplier error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };

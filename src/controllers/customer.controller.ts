@@ -64,12 +64,9 @@ export const createCustomer = async (
       newCustomer,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Create customer error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -89,12 +86,9 @@ export const getAllCustomers = async (
       customers,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Get all customers error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -118,12 +112,9 @@ export const getACustomer = async (
       customer,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Get a customer error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -173,12 +164,9 @@ export const updateCustomer = async (
       updatedCustomer,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Update customer error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -207,11 +195,8 @@ export const deleteCustomer = async (
 
     return sendSuccess(res, HTTP_STATUS.OK, CUSTOMER_MESSAGES.DELETED);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Delete customer error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };

@@ -46,12 +46,9 @@ export const createProduct = async (
       newProduct,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Create product error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -71,12 +68,9 @@ export const getAllProducts = async (
       products,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Get all products error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -100,12 +94,9 @@ export const getProductById = async (
       product,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Get product by ID error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -149,12 +140,9 @@ export const updateProduct = async (
       updatedProduct,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Update product error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -175,11 +163,8 @@ export const deleteProduct = async (
 
     return sendSuccess(res, HTTP_STATUS.OK, PRODUCT_MESSAGES.DELETED);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Delete product error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };

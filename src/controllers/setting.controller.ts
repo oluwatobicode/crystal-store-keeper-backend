@@ -24,12 +24,9 @@ export const getBusinessProfile = async (
       settings,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Get settings error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
@@ -60,12 +57,9 @@ export const updateBusinessProfile = async (
       updatedSettings,
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Update settings error:", error);
-    return sendError(
-      res,
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      ERROR_MESSAGES.SERVER_ERROR,
-    );
+    return next(error);
   }
 };
 
