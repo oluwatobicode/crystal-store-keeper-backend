@@ -2,6 +2,7 @@ import { Document } from "mongoose";
 import { Types } from "mongoose";
 
 export interface IUser extends Document {
+  email: string;
   fullname: string;
   username: string;
   password: string;

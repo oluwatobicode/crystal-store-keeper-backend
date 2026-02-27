@@ -4,6 +4,13 @@ import { IUser } from "../types/user.types";
 
 const userSchema = new mongoose.Schema<IUser>(
   {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
     fullname: {
       type: String,
       required: true,
@@ -18,6 +25,7 @@ const userSchema = new mongoose.Schema<IUser>(
     password: {
       type: String,
       required: true,
+      select: false,
     },
     role: {
       type: mongoose.Schema.Types.ObjectId,

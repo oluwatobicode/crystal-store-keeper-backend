@@ -8,3 +8,4 @@ export * as settingsController from "./setting.controller";
 export * as inventoryController from "./inventory.controller";
 export * as reportController from "./reports.controller";
 export * as dashboardController from "./dashboard.controller";
+export * as authController from "./auth.controller";

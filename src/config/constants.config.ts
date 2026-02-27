@@ -73,6 +73,7 @@ export const USER_MESSAGES = {
   MISSING_FIELDS:
     "Full name, username, password, role, and contact number are required",
   DUPLICATE_USERNAME: "A user with this username already exists",
+  INVALID_CREDENTIALS: "Invalid credentials",
 };
 
 export const ROLE_MESSAGES = {

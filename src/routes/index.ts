@@ -8,3 +8,4 @@ export { default as settingsRoutes } from "./settings.routes";
 export { default as inventoryRoutes } from "./inventory.routes";
 export { default as reportRoutes } from "./report.routes";
 export { default as dashboardRoutes } from "./ dashboard.routes";
+export { default as authRoutes } from "./auth.routes";
