@@ -36,20 +36,17 @@ export const login = async (
     }
 
     // checking if the password is correct
-    if (!user || !(await user.correctPassword(password))) {
+    if (!(await user.correctPassword(password))) {
       throw new AppError(401, USER_MESSAGES.INVALID_CREDENTIALS);
     }
 
-    console.log(user.role.roleName);
-
-    // return  jwt
+    // return jwt
     const token = signToken(
       user._id.toString(),
       user.email,
       user.role.roleName,
     );
 
-    // return
     return sendSuccess(res, 200, SUCCESS_MESSAGES.LOGIN_SUCCESS, {
       token,
     });
@@ -66,6 +63,7 @@ export const logout = async (
   next: NextFunction,
 ) => {
   try {
+    return sendSuccess(res, 200, "Logged out successfully", {});
   } catch (error) {
     console.log(error);
     next(error);
