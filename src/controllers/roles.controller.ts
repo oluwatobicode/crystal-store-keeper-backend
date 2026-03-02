@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { sendError, sendSuccess } from "../utils/response";
-import { ERROR_MESSAGES, HTTP_STATUS, ROLE_MESSAGES } from "../config";
+import { HTTP_STATUS, ROLE_MESSAGES } from "../config";
 import Role from "../models/Role";
 import { ALL_PERMISSIONS, Permission } from "../types/role.types";
 import { logAudit } from "../utils/auditLog";

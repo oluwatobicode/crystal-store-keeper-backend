@@ -36,7 +36,7 @@ export const login = async (
     }
 
     // checking if the password is correct
-    if (!(await user.correctPassword(password))) {
+    if (!user || !(await user.correctPassword(password))) {
       throw new AppError(401, USER_MESSAGES.INVALID_CREDENTIALS);
     }
 

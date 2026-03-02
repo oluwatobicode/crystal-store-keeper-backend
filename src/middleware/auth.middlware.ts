@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "../utils/AppError";
-import { USER_MESSAGES } from "../config";
+import { ERROR_MESSAGES, USER_MESSAGES } from "../config";
 import { verifyToken } from "../utils/token";
 import User from "../models/User";
 import { IRole, Permission } from "../types/role.types";
@@ -44,7 +44,7 @@ export const protectRoutes = async (
 export const authorize = (permission: Permission) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
-      throw new AppError(401, USER_MESSAGES.INVALID_CREDENTIALS);
+      throw new AppError(401, ERROR_MESSAGES.NOT_LOGGED_IN);
     }
 
     // role is populated by protectRoutes, cast it to IRole to access permissions

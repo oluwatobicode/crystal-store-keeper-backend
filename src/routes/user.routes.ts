@@ -4,12 +4,15 @@ import { protectRoutes, authorize } from "../middleware/auth.middlware";
 
 const router = Router();
 
-router.post(
-  "/",
-  protectRoutes,
-  authorize("users.manage"),
-  userController.createUser,
-);
+// router.post(
+//   "/",
+//   protectRoutes,
+//   authorize("users.manage"),
+//   userController.createUser,
+// );
+
+router.post("/", userController.createUser);
+
 router.get(
   "/",
   protectRoutes,

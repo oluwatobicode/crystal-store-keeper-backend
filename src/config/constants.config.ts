@@ -11,6 +11,7 @@ export const HTTP_STATUS = {
 };
 
 export const ERROR_MESSAGES = {
+  NOT_LOGGED_IN: "You need to be logged in!",
   INVALID_CREDENTIALS: "Invalid email or password",
   UNAUTHORIZED: "You are not authorized to perform this action",
   NOT_FOUND: "Resource not found",
