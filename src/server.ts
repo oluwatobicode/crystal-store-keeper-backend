@@ -32,9 +32,6 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// connecting to the db
-connectDb();
-
 // Test route
 app.get("/", (req: Request, res: Response) => {
   res.json({

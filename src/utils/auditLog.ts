@@ -11,6 +11,7 @@ import { IAuditLog } from "../types/auditLog.types";
  * @param details     - Human-readable description of what changed
  * @param category    - One of: 'sales' | 'inventory' | 'customers' | 'users' | 'settings' | 'auth' | 'backup'
  */
+
 export const logAudit = async (
   userId: Types.ObjectId | string | null,
   userSnapshot: string,

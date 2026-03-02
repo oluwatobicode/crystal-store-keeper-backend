@@ -1,0 +1,62 @@
+import { NextFunction, Request, Response } from "express";
+import { AppError } from "../utils/AppError";
+import { USER_MESSAGES } from "../config";
+import { verifyToken } from "../utils/token";
+import User from "../models/User";
+import { IRole, Permission } from "../types/role.types";
+
+export const protectRoutes = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    // 1. Get token from headers
+    const token = req.headers.authorization;
+
+    // 2. Check if token exists
+    if (!token || !token.startsWith("Bearer ")) {
+      throw new AppError(401, USER_MESSAGES.INVALID_CREDENTIALS);
+    }
+
+    // 3. Verify token
+    const decodedToken = verifyToken(token.split(" ")[1]);
+
+    // 4. Check if user exists
+    const user = await User.findById(decodedToken.userId).populate("role");
+
+    // 5. Check if user is valid
+    if (!user) {
+      throw new AppError(401, USER_MESSAGES.NOT_FOUND);
+    }
+
+    // 6. Attach user to request
+    req.user = user;
+
+    // 7. Move to next middleware
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+// factory function — returns a middleware that checks for a specific permission
+export const authorize = (permission: Permission) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      throw new AppError(401, USER_MESSAGES.INVALID_CREDENTIALS);
+    }
+
+    // role is populated by protectRoutes, cast it to IRole to access permissions
+    const role = req.user.role as unknown as IRole;
+
+    if (!role.permissions.includes(permission)) {
+      throw new AppError(
+        403,
+        "You do not have permission to perform this action",
+      );
+    }
+
+    next();
+  };
+};

@@ -4,6 +4,7 @@ import User from "../models/User";
 import { ERROR_MESSAGES, SUCCESS_MESSAGES, USER_MESSAGES } from "../config";
 import { sendSuccess } from "../utils/response";
 import { signToken } from "../utils/token";
+import { IRole } from "../types/role.types";
 
 // sign up
 export const signUp = async (
@@ -28,7 +29,7 @@ export const login = async (
 
     const user = await User.findOne({ email })
       .select("+password")
-      .populate("role");
+      .populate<{ role: IRole }>("role");
 
     if (!user) {
       throw new AppError(401, USER_MESSAGES.NOT_FOUND);
@@ -42,20 +43,19 @@ export const login = async (
     console.log(user.role.roleName);
 
     // return  jwt
-    // const token = signToken(
-    //   user._id.toString(),
-    //   user.email,
-    //   user.role.toString(),
-    // );
+    const token = signToken(
+      user._id.toString(),
+      user.email,
+      user.role.roleName,
+    );
 
     // return
     return sendSuccess(res, 200, SUCCESS_MESSAGES.LOGIN_SUCCESS, {
-      user,
-      // token,
+      token,
     });
   } catch (error) {
-    next(error);
     console.log(error);
+    next(error);
   }
 };
 
@@ -67,6 +67,7 @@ export const logout = async (
 ) => {
   try {
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
