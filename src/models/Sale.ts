@@ -12,6 +12,11 @@ const saleItemSchema = new mongoose.Schema<ISaleItem>(
       type: String,
       required: true,
     },
+    businessId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Business",
+      required: true,
+    },
     quantity: {
       type: Number,
       required: true,

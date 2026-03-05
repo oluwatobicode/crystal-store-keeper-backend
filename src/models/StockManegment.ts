@@ -12,6 +12,11 @@ const stockMovementSchema = new mongoose.Schema<IStockMovement>(
       type: String,
       required: true,
     },
+    businessId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Business",
+      required: true,
+    },
     movementType: {
       type: String,
       enum: ["sale", "receive", "adjustment", "return"],

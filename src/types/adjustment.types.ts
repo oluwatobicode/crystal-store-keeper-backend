@@ -12,4 +12,5 @@ export interface IAdjustment extends Document {
   quantityChange: number;
   reason: string;
   performedBy: Types.ObjectId;
+  businessId: Types.ObjectId;
 }

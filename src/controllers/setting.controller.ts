@@ -11,7 +11,9 @@ export const getBusinessProfile = async (
   next: NextFunction,
 ) => {
   try {
-    const settings = await Setting.findOne();
+    const businessId = req.businessId!;
+
+    const settings = await Setting.findOne({ businessId });
 
     if (!settings) {
       return sendSuccess(res, HTTP_STATUS.OK, BUSINESS_MESSAGES.NOT_FOUND, {});
@@ -37,17 +39,24 @@ export const updateBusinessProfile = async (
   next: NextFunction,
 ) => {
   try {
-    const updatedSettings = await Setting.findOneAndUpdate({}, req.body, {
-      new: true,
-      upsert: true,
-    });
+    const businessId = req.businessId!;
+
+    const updatedSettings = await Setting.findOneAndUpdate(
+      { businessId },
+      req.body,
+      {
+        new: true,
+        upsert: true,
+      },
+    );
 
     await logAudit(
-      null,
-      "System",
+      req.user!._id,
+      `${req.user!.fullname}`,
       "UPDATE_SETTINGS",
       "Updated business settings",
       "settings",
+      businessId,
     );
 
     return sendSuccess(

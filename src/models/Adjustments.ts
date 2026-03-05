@@ -8,6 +8,11 @@ const adjustmentSchema = new mongoose.Schema<IAdjustment>(
       ref: "Product",
       required: true,
     },
+    businessId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Business",
+      required: true,
+    },
     adjustmentType: {
       type: String,
       enum: [

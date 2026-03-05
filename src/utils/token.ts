@@ -7,15 +7,17 @@ export interface TokenPayload {
   userId: string;
   email: string;
   role: string;
+  businessId: string;
 }
 
 export const signToken = (
   userId: string,
   email: string,
   role: string,
+  businessId: string,
 ): string => {
   return jwt.sign(
-    { userId, email, role },
+    { userId, email, role, businessId },
     config.jwtSecret as jwt.Secret,
     { expiresIn: "7d" } as jwt.SignOptions,
   );

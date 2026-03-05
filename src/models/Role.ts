@@ -3,6 +3,12 @@ import { IRole, ALL_PERMISSIONS } from "../types/role.types";
 
 const roleSchema = new mongoose.Schema<IRole>(
   {
+    businessId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Business",
+      required: true,
+      index: true,
+    },
     roleName: {
       type: String,
       required: true,

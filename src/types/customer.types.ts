@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 export interface ICustomer extends Document {
   customerId: string;
@@ -11,4 +11,5 @@ export interface ICustomer extends Document {
   currentBalance: number;
   totalSpent: number;
   isActive: boolean;
+  businessId: Types.ObjectId;
 }

@@ -12,6 +12,11 @@ const auditLogSchema = new mongoose.Schema<IAuditLog>(
       ref: "User",
       required: true,
     },
+    businessId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Business",
+      required: true,
+    },
     userSnapshot: {
       type: String,
       required: true,

@@ -18,6 +18,8 @@ export const receiveStock = async (
   next: NextFunction,
 ) => {
   try {
+    const businessId = req.businessId!;
+
     const { productId, quantity, supplierId, notes } = req.body;
 
     if (!productId || !quantity || !supplierId) {
@@ -62,17 +64,18 @@ export const receiveStock = async (
       quantityChange: quantity, // positive = stock added
       stockBefore,
       stockAfter,
-      performedBy: req.body.performedBy || new Types.ObjectId(),
+      performedBy: req.user!._id,
       notes: notes || `Received ${quantity} units from supplier`,
     });
 
     // step 5: log to audit trail
     await logAudit(
-      null,
-      "System",
+      req.user!._id,
+      `${req.user!.fullname}`,
       "RECEIVE_STOCK",
       `Received ${quantity} units of ${product.name} (${stockBefore} → ${stockAfter})`,
       "inventory",
+      businessId,
     );
 
     return sendSuccess(
@@ -107,6 +110,8 @@ export const adjustStock = async (
   next: NextFunction,
 ) => {
   try {
+    const businessId = req.businessId!;
+
     const { productId, adjustmentType, quantityChange, reason, notes } =
       req.body;
 
@@ -174,11 +179,12 @@ export const adjustStock = async (
 
     // step 6: log to audit trail
     await logAudit(
-      null,
-      "System",
+      req.user!._id,
+      `${req.user!.fullname}`,
       "ADJUST_STOCK",
       `Adjusted ${product.name}: ${quantityChange > 0 ? "+" : ""}${quantityChange} units (${adjustmentType}) — ${reason}`,
       "inventory",
+      businessId,
     );
 
     return sendSuccess(res, HTTP_STATUS.OK, INVENTORY_MESSAGES.STOCK_ADJUSTED, {

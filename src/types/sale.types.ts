@@ -2,6 +2,7 @@ import { Document, Types } from "mongoose";
 
 export interface ISaleItem {
   productId: Types.ObjectId;
+  businessId: Types.ObjectId;
   productName: string;
   quantity: number;
   unitPrice: number;
@@ -12,6 +13,7 @@ export interface IPayment {
   method: "cash" | "pos" | "bank_transfer";
   amount: number;
   reference: string | null;
+  businessId: Types.ObjectId;
 }
 
 export interface ISale extends Document {
@@ -28,6 +30,7 @@ export interface ISale extends Document {
   discountAmount: number;
   vatRate: number;
   vatAmount: number;
+  businessId: Types.ObjectId;
   grandTotal: number;
   amountPaid: number;
   paymentStatus: "paid" | "partial" | "pending";

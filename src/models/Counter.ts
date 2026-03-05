@@ -10,6 +10,11 @@ const counterSchema = new mongoose.Schema<ICounter>({
     type: Number,
     default: 0,
   },
+  businessId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Business",
+    required: true,
+  },
 });
 
 const Counter: Model<ICounter> = mongoose.model<ICounter>(

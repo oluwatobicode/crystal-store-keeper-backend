@@ -18,6 +18,7 @@ export const logAudit = async (
   action: string,
   details: string,
   category: IAuditLog["category"],
+  businessId: Types.ObjectId | string,
 ): Promise<void> => {
   try {
     await AuditLog.create({
@@ -26,6 +27,7 @@ export const logAudit = async (
       action,
       details,
       category,
+      businessId,
     });
   } catch (error) {
     // Audit logging should never crash the main request

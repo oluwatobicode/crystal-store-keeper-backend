@@ -11,6 +11,11 @@ const productSchema = new mongoose.Schema<IProduct>(
       type: String,
       default: null,
     },
+    businessId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Business",
+      required: true,
+    },
     location: {
       type: String,
       default: null,

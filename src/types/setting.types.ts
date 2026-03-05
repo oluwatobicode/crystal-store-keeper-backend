@@ -1,6 +1,7 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 export interface ISetting extends Document {
+  businessId: Types.ObjectId;
   business: {
     storeName: string;
     address: string;

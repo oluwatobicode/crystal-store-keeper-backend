@@ -49,6 +49,12 @@ const userSchema = new mongoose.Schema<IUser>(
       type: Date,
       default: null,
     },
+    businessId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Business",
+      required: true,
+      index: true,
+    },
   },
   {
     timestamps: true,

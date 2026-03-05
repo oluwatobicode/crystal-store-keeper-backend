@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 export const ALL_PERMISSIONS = [
   // dashboard view
@@ -47,6 +47,7 @@ export type Permission = (typeof ALL_PERMISSIONS)[number];
 
 export interface IRole extends Document {
   roleName: string;
+  businessId: Types.ObjectId;
   description: string;
   permissions: Permission[];
   isDefault: boolean;

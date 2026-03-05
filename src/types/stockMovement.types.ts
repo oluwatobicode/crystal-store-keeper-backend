@@ -11,4 +11,5 @@ export interface IStockMovement extends Document {
   referenceModel: "Sale" | "Adjustment" | null;
   performedBy: Types.ObjectId;
   notes: string | null;
+  businessId: Types.ObjectId;
 }

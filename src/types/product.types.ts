@@ -7,6 +7,7 @@ export interface IProduct extends Document {
   unit: string;
   SKU: string;
   currentStock: number;
+  businessId: Types.ObjectId;
   reorderLevel: number;
   preferredStockLevel: number;
   purchaseCost: number;

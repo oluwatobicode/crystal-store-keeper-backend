@@ -3,6 +3,11 @@ import { ISetting } from "../types/setting.types";
 
 const settingSchema = new mongoose.Schema<ISetting>(
   {
+    businessId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Business",
+      required: true,
+    },
     business: {
       storeName: { type: String, default: "" },
       address: { type: String, default: "" },

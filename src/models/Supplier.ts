@@ -12,6 +12,11 @@ const supplierSchema = new mongoose.Schema<ISupplier>(
       required: true,
       default: null,
     },
+    businessId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Business",
+      required: true,
+    },
     phone: {
       type: String,
       required: true,

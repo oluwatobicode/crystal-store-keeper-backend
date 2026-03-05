@@ -12,6 +12,11 @@ const customerSchema = new mongoose.Schema<ICustomer>(
       type: String,
       required: true,
     },
+    businessId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Business",
+      required: true,
+    },
     email: {
       type: String,
       default: null,

@@ -12,6 +12,8 @@ export const createRole = async (
   next: NextFunction,
 ) => {
   try {
+    const businessId = req.businessId!;
+
     const { roleName, description, permissions } = req.body;
 
     if (!roleName || !description) {
@@ -44,11 +46,12 @@ export const createRole = async (
     const newRole = await Role.create(req.body);
 
     await logAudit(
-      null,
-      "System",
+      req.user!._id,
+      `${req.user!.fullname}`,
       "CREATE_ROLE",
       `Created role: ${newRole.roleName}`,
       "users",
+      businessId,
     );
 
     return sendSuccess(
@@ -71,7 +74,9 @@ export const getAllRoles = async (
   next: NextFunction,
 ) => {
   try {
-    const roles = await Role.find();
+    const businessId = req.businessId!;
+
+    const roles = await Role.find({ businessId });
 
     return sendSuccess(
       res,
@@ -93,7 +98,9 @@ export const getRole = async (
   next: NextFunction,
 ) => {
   try {
-    const role = await Role.findById(req.params.id);
+    const businessId = req.businessId!;
+
+    const role = await Role.findOne({ _id: req.params.id, businessId });
 
     if (!role) {
       return sendError(res, HTTP_STATUS.NOT_FOUND, ROLE_MESSAGES.NOT_FOUND);
@@ -114,7 +121,9 @@ export const updateRole = async (
   next: NextFunction,
 ) => {
   try {
-    const role = await Role.findById(req.params.id);
+    const businessId = req.businessId!;
+
+    const role = await Role.findOne({ _id: req.params.id, businessId });
 
     if (!role) {
       return sendError(res, HTTP_STATUS.NOT_FOUND, ROLE_MESSAGES.NOT_FOUND);
@@ -165,11 +174,12 @@ export const updateRole = async (
     });
 
     await logAudit(
-      null,
-      "System",
+      req.user!._id,
+      `${req.user!.fullname}`,
       "UPDATE_ROLE",
       `Updated role: ${updatedRole?.roleName}`,
       "users",
+      businessId,
     );
 
     return sendSuccess(res, HTTP_STATUS.OK, ROLE_MESSAGES.UPDATED, updatedRole);
@@ -187,7 +197,9 @@ export const updateRolePermissions = async (
   next: NextFunction,
 ) => {
   try {
-    const role = await Role.findById(req.params.id);
+    const businessId = req.businessId!;
+
+    const role = await Role.findOne({ _id: req.params.id, businessId });
 
     if (!role) {
       return sendError(res, HTTP_STATUS.NOT_FOUND, ROLE_MESSAGES.NOT_FOUND);
@@ -222,11 +234,12 @@ export const updateRolePermissions = async (
     );
 
     await logAudit(
-      null,
-      "System",
+      req.user!._id,
+      `${req.user!.fullname}`,
       "UPDATE_ROLE_PERMISSIONS",
       `Updated permissions for role: ${updatedRole?.roleName}`,
       "users",
+      businessId,
     );
 
     return sendSuccess(res, HTTP_STATUS.OK, ROLE_MESSAGES.UPDATED, updatedRole);
@@ -244,7 +257,9 @@ export const deleteRole = async (
   next: NextFunction,
 ) => {
   try {
-    const role = await Role.findById(req.params.id);
+    const businessId = req.businessId!;
+
+    const role = await Role.findOne({ _id: req.params.id, businessId });
 
     if (!role) {
       return sendError(res, HTTP_STATUS.NOT_FOUND, ROLE_MESSAGES.NOT_FOUND);
@@ -262,11 +277,12 @@ export const deleteRole = async (
     await Role.findByIdAndDelete(req.params.id);
 
     await logAudit(
-      null,
-      "System",
+      req.user!._id,
+      `${req.user!.fullname}`,
       "DELETE_ROLE",
       `Deleted role: ${role.roleName}`,
       "users",
+      businessId,
     );
 
     return sendSuccess(res, HTTP_STATUS.OK, ROLE_MESSAGES.DELETED);

@@ -11,6 +11,8 @@ export const createSupplier = async (
   next: NextFunction,
 ) => {
   try {
+    const businessId = req.businessId!;
+
     const { name, contactPerson, phone, email } = req.body;
 
     if (!name || !contactPerson || !phone || !email) {
@@ -21,14 +23,15 @@ export const createSupplier = async (
       );
     }
 
-    const newSupplier = await Supplier.create(req.body);
+    const newSupplier = await Supplier.create({ ...req.body, businessId });
 
     await logAudit(
-      null,
-      "System",
+      req.user!._id,
+      `${req.user!.fullname}`,
       "CREATE_SUPPLIER",
       `Created supplier: ${newSupplier.name}`,
       "inventory",
+      businessId,
     );
 
     return sendSuccess(
@@ -49,8 +52,9 @@ export const getAllSupplier = async (
   res: Response,
   next: NextFunction,
 ) => {
+  const businessId = req.businessId!;
   try {
-    const suppliers = await Supplier.find();
+    const suppliers = await Supplier.find({ businessId });
 
     return sendSuccess(
       res,
@@ -70,8 +74,9 @@ export const getASupplier = async (
   res: Response,
   next: NextFunction,
 ) => {
+  const businessId = req.businessId!;
   try {
-    const supplier = await Supplier.findById(req.params.id);
+    const supplier = await Supplier.findOne({ _id: req.params.id, businessId });
 
     if (!supplier) {
       return sendError(res, HTTP_STATUS.NOT_FOUND, SUPPLIER_MESSAGES.NOT_FOUND);
@@ -97,7 +102,9 @@ export const updateSupplier = async (
   next: NextFunction,
 ) => {
   try {
-    const supplier = await Supplier.findById(req.params.id);
+    const businessId = req.businessId!;
+
+    const supplier = await Supplier.findOne({ _id: req.params.id, businessId });
 
     if (!supplier) {
       return sendError(res, HTTP_STATUS.NOT_FOUND, SUPPLIER_MESSAGES.NOT_FOUND);
@@ -110,11 +117,12 @@ export const updateSupplier = async (
     );
 
     await logAudit(
-      null,
-      "System",
+      req.user!._id,
+      `${req.user!.fullname}`,
       "UPDATE_SUPPLIER",
       `Updated supplier: ${updatedSupplier?.name}`,
       "inventory",
+      businessId,
     );
 
     return sendSuccess(
@@ -137,7 +145,9 @@ export const deleteSupplier = async (
   next: NextFunction,
 ) => {
   try {
-    const supplier = await Supplier.findById(req.params.id);
+    const businessId = req.businessId!;
+
+    const supplier = await Supplier.findOne({ _id: req.params.id, businessId });
 
     if (!supplier) {
       return sendError(res, HTTP_STATUS.NOT_FOUND, SUPPLIER_MESSAGES.NOT_FOUND);
@@ -146,11 +156,12 @@ export const deleteSupplier = async (
     await Supplier.findByIdAndDelete(req.params.id);
 
     await logAudit(
-      null,
-      "System",
+      req.user!._id,
+      `${req.user!.fullname}`,
       "DELETE_SUPPLIER",
       `Deleted supplier: ${supplier.name}`,
       "inventory",
+      businessId,
     );
 
     return sendSuccess(res, HTTP_STATUS.OK, SUPPLIER_MESSAGES.DELETED);

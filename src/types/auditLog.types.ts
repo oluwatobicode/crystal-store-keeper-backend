@@ -5,6 +5,7 @@ export interface IAuditLog extends Document {
   userId: Types.ObjectId;
   userSnapshot: string;
   action: string;
+  businessId: Types.ObjectId;
   details: string;
   category:
     | "sales"

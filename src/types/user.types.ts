@@ -12,6 +12,7 @@ export interface IUser extends Document {
   username: string;
   password: string;
   role: Types.ObjectId | Irole;
+  businessId: Types.ObjectId;
   contactNumber: string;
   status: "active" | "inactive" | "suspended";
   mustChangePassword: boolean;

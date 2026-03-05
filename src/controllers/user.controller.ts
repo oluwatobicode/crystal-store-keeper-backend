@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { ERROR_MESSAGES, HTTP_STATUS, USER_MESSAGES } from "../config";
+import { HTTP_STATUS, USER_MESSAGES } from "../config";
 import { sendError, sendSuccess } from "../utils/response";
 import User from "../models/User";
 import { logAudit } from "../utils/auditLog";
@@ -10,6 +10,7 @@ export const createUser = async (
   next: NextFunction,
 ) => {
   try {
+    const businessId = req.businessId!;
     const { fullname, username, password, role, contactNumber } = req.body;
 
     if (!fullname || !username || !password || !role || !contactNumber) {
@@ -20,8 +21,8 @@ export const createUser = async (
       );
     }
 
-    const existingUser = await User.findOne({ username });
-
+    // scoped — check duplicate username within this business only
+    const existingUser = await User.findOne({ username, businessId });
     if (existingUser) {
       return sendError(
         res,
@@ -32,15 +33,17 @@ export const createUser = async (
 
     const newUser = await User.create({
       ...req.body,
+      businessId,
       mustChangePassword: true,
     });
 
     await logAudit(
-      null,
-      "System",
+      req.user!._id,
+      req.user!.fullname,
       "CREATE_USER",
-      `Created User: ${newUser.fullname}`,
+      `Created user: ${newUser.fullname}`,
       "users",
+      businessId,
     );
 
     return sendSuccess(
@@ -50,7 +53,6 @@ export const createUser = async (
       newUser,
     );
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error("Create user error:", error);
     return next(error);
   }
@@ -62,60 +64,125 @@ export const deleteUser = async (
   next: NextFunction,
 ) => {
   try {
+    const businessId = req.businessId!;
+
+    const user = await User.findOne({ _id: req.params.id, businessId });
+
+    if (!user) {
+      return sendError(res, HTTP_STATUS.NOT_FOUND, USER_MESSAGES.NOT_FOUND);
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+
+    await logAudit(
+      req.user!._id,
+      req.user!.fullname,
+      "DELETE_USER",
+      `Deleted user: ${user.fullname}`,
+      "users",
+      businessId,
+    );
+
+    return sendSuccess(res, HTTP_STATUS.OK, USER_MESSAGES.DELETED);
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error("Delete user error:", error);
     return next(error);
   }
 };
+
 export const updateUser = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const user = await User.findById(req.params.id).populate("role");
+    const businessId = req.businessId!;
+
+    const user = await User.findOne({ _id: req.params.id, businessId });
 
     if (!user) {
       return sendError(res, HTTP_STATUS.NOT_FOUND, USER_MESSAGES.NOT_FOUND);
     }
 
-    const updateUser = await User.findByIdAndUpdate(req.params.id, req.body, {
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
 
     await logAudit(
-      null,
-      "System",
+      req.user!._id,
+      req.user!.fullname,
       "UPDATE_USER",
-      `Updated User: ${updateUser?.fullname}`,
+      `Updated user: ${updatedUser?.fullname}`,
       "users",
+      businessId,
     );
 
-    return sendSuccess(res, HTTP_STATUS.OK, USER_MESSAGES.UPDATED, updateUser);
+    return sendSuccess(res, HTTP_STATUS.OK, USER_MESSAGES.UPDATED, updatedUser);
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error("Update user error:", error);
     return next(error);
   }
 };
+
+export const updateUserStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const businessId = req.businessId!;
+    const { status } = req.body;
+
+    if (!status || !["active", "inactive", "suspended"].includes(status)) {
+      return sendError(res, HTTP_STATUS.BAD_REQUEST, "Invalid status value");
+    }
+
+    const user = await User.findOne({ _id: req.params.id, businessId });
+
+    if (!user) {
+      return sendError(res, HTTP_STATUS.NOT_FOUND, USER_MESSAGES.NOT_FOUND);
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true },
+    );
+
+    await logAudit(
+      req.user!._id,
+      req.user!.fullname,
+      "UPDATE_USER_STATUS",
+      `Updated user status: ${user.fullname} → ${status}`,
+      "users",
+      businessId,
+    );
+
+    return sendSuccess(res, HTTP_STATUS.OK, USER_MESSAGES.UPDATED, updatedUser);
+  } catch (error) {
+    console.error("Update user status error:", error);
+    return next(error);
+  }
+};
+
 export const getAllUsers = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const users = await User.find().populate("role");
+    const businessId = req.businessId!;
+
+    const users = await User.find({ businessId }).populate("role");
 
     return sendSuccess(
       res,
       HTTP_STATUS.OK,
-      users.length > 0 ? USER_MESSAGES.FETCHED : USER_MESSAGES.NOT_FOUND,
+      users.length > 0 ? USER_MESSAGES.FETCHED : "No users found",
       users,
     );
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error("Get all users error:", error);
     return next(error);
   }
@@ -127,7 +194,12 @@ export const getUser = async (
   next: NextFunction,
 ) => {
   try {
-    const user = await User.findById(req.params.id).populate("role");
+    const businessId = req.businessId!;
+
+    const user = await User.findOne({
+      _id: req.params.id,
+      businessId,
+    }).populate("role");
 
     if (!user) {
       return sendError(res, HTTP_STATUS.NOT_FOUND, USER_MESSAGES.NOT_FOUND);
@@ -135,7 +207,6 @@ export const getUser = async (
 
     return sendSuccess(res, HTTP_STATUS.OK, USER_MESSAGES.FETCHED_ONE, user);
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error("Get user error:", error);
     return next(error);
   }

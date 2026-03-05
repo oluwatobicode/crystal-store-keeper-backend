@@ -32,6 +32,7 @@ export const protectRoutes = async (
 
     // 6. Attach user to request
     req.user = user;
+    req.businessId = decodedToken.businessId;
 
     // 7. Move to next middleware
     next();
