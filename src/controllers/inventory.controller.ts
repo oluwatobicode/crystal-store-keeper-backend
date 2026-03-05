@@ -39,7 +39,7 @@ export const receiveStock = async (
     }
 
     // step 1: find the product
-    const product = await Product.findById(productId);
+    const product = await Product.findById({ productId, businessId });
     if (!product) {
       return sendError(
         res,

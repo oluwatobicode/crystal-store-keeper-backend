@@ -10,6 +10,7 @@ export const createProduct = async (
   next: NextFunction,
 ) => {
   try {
+    const businessId = req.businessId!;
     const { name, unit, SKU, purchaseCost, sellingPrice } = req.body;
 
     // Validate required fields
@@ -37,7 +38,7 @@ export const createProduct = async (
       );
     }
 
-    const newProduct = await Product.create(req.body);
+    const newProduct = await Product.create({ ...req.body, businessId });
 
     return sendSuccess(
       res,
@@ -59,7 +60,8 @@ export const getAllProducts = async (
   next: NextFunction,
 ) => {
   try {
-    const products = await Product.find();
+    const businessId = req.businessId!;
+    const products = await Product.find({ businessId });
 
     return sendSuccess(
       res,
@@ -81,7 +83,8 @@ export const getProductById = async (
   next: NextFunction,
 ) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const businessId = req.businessId!;
+    const product = await Product.findOne({ _id: req.params.id, businessId });
 
     if (!product) {
       return sendError(res, HTTP_STATUS.NOT_FOUND, PRODUCT_MESSAGES.NOT_FOUND);

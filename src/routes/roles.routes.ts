@@ -16,6 +16,12 @@ router.get(
   authorize("user.roles"),
   roleController.getAllRoles,
 );
+router.get(
+  "/:id",
+  protectRoutes,
+  authorize("user.roles"),
+  roleController.getRole,
+);
 router.patch(
   "/:id",
   protectRoutes,

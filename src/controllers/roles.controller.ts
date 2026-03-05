@@ -24,7 +24,7 @@ export const createRole = async (
       );
     }
 
-    const existingRole = await Role.findOne({ roleName });
+    const existingRole = await Role.findOne({ roleName, businessId });
     if (existingRole) {
       return sendError(res, HTTP_STATUS.CONFLICT, ROLE_MESSAGES.DUPLICATE_NAME);
     }
@@ -43,7 +43,7 @@ export const createRole = async (
       }
     }
 
-    const newRole = await Role.create(req.body);
+    const newRole = await Role.create({ ...req.body, businessId });
 
     await logAudit(
       req.user!._id,
