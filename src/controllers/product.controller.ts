@@ -110,7 +110,8 @@ export const updateProduct = async (
   next: NextFunction,
 ) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const businessId = req.businessId!;
+    const product = await Product.findOne({ _id: req.params.id, businessId });
 
     if (!product) {
       return sendError(res, HTTP_STATUS.NOT_FOUND, PRODUCT_MESSAGES.NOT_FOUND);
@@ -156,7 +157,9 @@ export const deleteProduct = async (
   next: NextFunction,
 ) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const businessId = req.businessId!;
+
+    const product = await Product.findOne({ _id: req.params.id, businessId });
 
     if (!product) {
       return sendError(res, HTTP_STATUS.NOT_FOUND, PRODUCT_MESSAGES.NOT_FOUND);

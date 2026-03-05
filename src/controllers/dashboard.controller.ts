@@ -10,6 +10,8 @@ export const dashboardAnalysis = async (
   next: NextFunction,
 ) => {
   try {
+    const businessId = req.businessId!;
+
     // get start and end of today
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
@@ -19,6 +21,7 @@ export const dashboardAnalysis = async (
 
     const todayFilter = {
       createdAt: { $gte: todayStart, $lte: todayEnd },
+      businessId,
     };
 
     // today's total sales
@@ -50,6 +53,7 @@ export const dashboardAnalysis = async (
     // pending payments count
     const pendingPaymentsCount = await Sale.countDocuments({
       paymentStatus: { $in: ["partial", "pending"] },
+      businessId,
     });
 
     // low stock count

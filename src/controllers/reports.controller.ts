@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import Sale from "../models/Sale";
 import StockMovement from "../models/StockManegment";
-import { sendError, sendSuccess } from "../utils/response";
+import { sendSuccess } from "../utils/response";
 import { ERROR_MESSAGES, HTTP_STATUS } from "../config";
 
 // getting the sales analysis and report
