@@ -13,6 +13,7 @@ import {
   customerRoutes,
   dashboardRoutes,
   authRoutes,
+  salesRoutes,
 } from "./routes";
 import cors from "cors";
 import { globalErrorHandler } from "./middleware/error.middlware";
@@ -49,6 +50,7 @@ app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/suppliers", supplierRoutes);
 app.use("/api/v1/customers", customerRoutes);
 app.use("/api/v1/roles", rolesRoutes);
+app.use("/api/v1/sales", salesRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/logs", auditLogsRoutes);
 app.use("/api/v1/settings", settingsRoutes);

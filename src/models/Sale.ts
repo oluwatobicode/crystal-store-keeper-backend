@@ -66,6 +66,11 @@ const saleSchema = new mongoose.Schema<ISale>(
       ref: "User",
       required: true,
     },
+    businessId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Business",
+      required: true,
+    },
     customerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Customer",

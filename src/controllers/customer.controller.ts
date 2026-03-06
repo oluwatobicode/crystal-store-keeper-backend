@@ -4,6 +4,7 @@ import Counter from "../models/Counter";
 import { sendError, sendSuccess } from "../utils/response";
 import { CUSTOMER_MESSAGES, HTTP_STATUS } from "../config";
 import { logAudit } from "../utils/auditLog";
+import Sale from "../models/Sale";
 
 const generateCustomerId = async (businessId: string): Promise<string> => {
   const counter = await Counter.findOneAndUpdate(
@@ -169,6 +170,33 @@ export const updateCustomer = async (
     );
   } catch (error) {
     console.error("Update customer error:", error);
+    return next(error);
+  }
+};
+
+export const getCustomerTransactions = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const businessId = req.businessId!;
+
+    const transactions = await Sale.find({
+      customerId: req.params.id,
+      businessId,
+    });
+
+    return sendSuccess(
+      res,
+      HTTP_STATUS.OK,
+      transactions.length > 0
+        ? CUSTOMER_MESSAGES.FETCHED
+        : "No transactions found",
+      transactions,
+    );
+  } catch (error) {
+    console.error("Get customer transactions error:", error);
     return next(error);
   }
 };

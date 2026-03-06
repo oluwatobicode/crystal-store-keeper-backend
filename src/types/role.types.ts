@@ -4,7 +4,7 @@ export const ALL_PERMISSIONS = [
   // dashboard view
   "dashboard.view",
 
-  // point of scale roles
+  // point of sales roles
   "pos.operate",
   "pos.discount.small",
   "pos.discount.large",

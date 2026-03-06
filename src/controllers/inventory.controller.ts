@@ -4,8 +4,10 @@ import { ERROR_MESSAGES, HTTP_STATUS, INVENTORY_MESSAGES } from "../config";
 import { sendError, sendSuccess } from "../utils/response";
 import { logAudit } from "../utils/auditLog";
 import Product from "../models/Product";
-import StockMovement from "../models/StockManegment";
+import StockMovement from "../models/StockMovement";
 import Adjustment from "../models/Adjustments";
+import Sale from "../models/Sale";
+import mongoose from "mongoose";
 
 // this is to receive stock (e.g. new shipment from supplier)
 // 1. Finds the product
@@ -39,7 +41,7 @@ export const receiveStock = async (
     }
 
     // step 1: find the product
-    const product = await Product.findById({ productId, businessId });
+    const product = await Product.findOne({ _id: productId, businessId });
     if (!product) {
       return sendError(
         res,
@@ -129,7 +131,7 @@ export const adjustStock = async (
     }
 
     // step 1: find the product
-    const product = await Product.findById(productId);
+    const product = await Product.findOne({ _id: productId, businessId });
     if (!product) {
       return sendError(
         res,
@@ -156,7 +158,7 @@ export const adjustStock = async (
       adjustmentType,
       quantityChange,
       reason,
-      performedBy: req.body.performedBy || new Types.ObjectId(),
+      performedBy: req.user!._id,
     });
 
     // step 4: update the product's current stock
@@ -173,7 +175,7 @@ export const adjustStock = async (
       stockAfter,
       referenceId: adjustment._id,
       referenceModel: "Adjustment",
-      performedBy: req.body.performedBy || new Types.ObjectId(),
+      performedBy: req.user!._id,
       notes: notes || reason,
     });
 
@@ -208,8 +210,9 @@ export const getInventoryMovements = async (
   next: NextFunction,
 ) => {
   try {
+    const businessId = req.businessId!;
     const { from, to, productId } = req.query;
-    const filter: Record<string, unknown> = {};
+    const filter: Record<string, unknown> = { businessId };
 
     if (productId) filter.productId = productId;
 
@@ -256,21 +259,70 @@ export const getLowStockProducts = async (
   next: NextFunction,
 ) => {
   try {
+    const businessId = req.businessId!;
+
+    // get all low stock products for this business
     const products = await Product.find({
-      $expr: {
-        $lte: ["$currentStock", "$reorderLevel"],
-      },
+      $expr: { $lte: ["$currentStock", "$reorderLevel"] },
       isActive: true,
+      businessId,
+    });
+
+    // date range for last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // get sales velocity for all these products in one query
+    const salesVelocity = await Sale.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: thirtyDaysAgo },
+          businessId: new mongoose.Types.ObjectId(businessId),
+        },
+      },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.productId",
+          totalSold: { $sum: "$items.quantity" },
+        },
+      },
+    ]);
+
+    // map productId → totalSold for quick lookup
+    const velocityMap = new Map(
+      salesVelocity.map((s) => [s._id.toString(), s.totalSold]),
+    );
+
+    // attach daysLeft and suggestedOrder to each product
+    const result = products.map((product) => {
+      const totalSold = velocityMap.get(product._id.toString()) ?? 0;
+      const avgDailySales = totalSold / 30;
+
+      const daysLeft =
+        avgDailySales > 0
+          ? Math.floor(product.currentStock / avgDailySales)
+          : null;
+
+      const suggestedOrder = Math.max(
+        0,
+        product.preferredStockLevel - product.currentStock,
+      );
+
+      return {
+        ...product.toObject(),
+        daysLeft,
+        suggestedOrder,
+      };
     });
 
     return sendSuccess(
       res,
       HTTP_STATUS.OK,
       "Reorder alerts fetched successfully",
-      products,
+      result,
     );
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error("Reorder alerts error:", error);
     return next(error);
   }

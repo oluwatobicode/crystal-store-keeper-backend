@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
+import mongoose from "mongoose";
 import Sale from "../models/Sale";
-import StockMovement from "../models/StockManegment";
+import StockMovement from "../models/StockMovement";
 import { sendSuccess } from "../utils/response";
-import { ERROR_MESSAGES, HTTP_STATUS } from "../config";
+import { HTTP_STATUS } from "../config";
 
 // getting the sales analysis and report
 export const salesAnalysisReport = async (
@@ -11,9 +12,12 @@ export const salesAnalysisReport = async (
   next: NextFunction,
 ) => {
   try {
+    const businessId = req.businessId!;
     const { from, to } = req.query;
 
-    const filter: Record<string, unknown> = {};
+    const filter: Record<string, unknown> = {
+      businessId: new mongoose.Types.ObjectId(businessId),
+    };
 
     if (from || to) {
       filter.createdAt = {} as Record<string, Date>;
@@ -98,9 +102,12 @@ export const productAnalysisReport = async (
   next: NextFunction,
 ) => {
   try {
+    const businessId = req.businessId!;
     const { from, to } = req.query;
 
-    const filter: Record<string, unknown> = {};
+    const filter: Record<string, unknown> = {
+      businessId: new mongoose.Types.ObjectId(businessId),
+    };
 
     if (from || to) {
       filter.createdAt = {} as Record<string, Date>;
@@ -184,8 +191,11 @@ export const paymentMethodReport = async (
   next: NextFunction,
 ) => {
   try {
+    const businessId = req.businessId!;
     const { from, to } = req.query;
-    const filter: Record<string, unknown> = {};
+    const filter: Record<string, unknown> = {
+      businessId: new mongoose.Types.ObjectId(businessId),
+    };
 
     if (from || to) {
       filter.createdAt = {} as Record<string, Date>;
@@ -260,8 +270,11 @@ export const stockMovementReports = async (
   next: NextFunction,
 ) => {
   try {
+    const businessId = req.businessId!;
     const { from, to } = req.query;
-    const filter: Record<string, unknown> = {};
+    const filter: Record<string, unknown> = {
+      businessId: new mongoose.Types.ObjectId(businessId),
+    };
 
     if (from || to) {
       filter.createdAt = {} as Record<string, Date>;

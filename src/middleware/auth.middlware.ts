@@ -44,20 +44,24 @@ export const protectRoutes = async (
 // factory function — returns a middleware that checks for a specific permission
 export const authorize = (permission: Permission) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user) {
-      throw new AppError(401, ERROR_MESSAGES.NOT_LOGGED_IN);
+    try {
+      if (!req.user) {
+        throw new AppError(401, ERROR_MESSAGES.NOT_LOGGED_IN);
+      }
+
+      // role is populated by protectRoutes, cast it to IRole to access permissions
+      const role = req.user.role as unknown as IRole;
+
+      if (!role.permissions.includes(permission)) {
+        throw new AppError(
+          403,
+          "You do not have permission to perform this action",
+        );
+      }
+
+      next();
+    } catch (error) {
+      next(error);
     }
-
-    // role is populated by protectRoutes, cast it to IRole to access permissions
-    const role = req.user.role as unknown as IRole;
-
-    if (!role.permissions.includes(permission)) {
-      throw new AppError(
-        403,
-        "You do not have permission to perform this action",
-      );
-    }
-
-    next();
   };
 };

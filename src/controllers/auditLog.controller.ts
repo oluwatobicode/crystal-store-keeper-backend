@@ -11,8 +11,9 @@ export const getAllLogs = async (
   next: NextFunction,
 ) => {
   try {
+    const businessId = req.businessId!;
     const { from, to, category, userId } = req.query;
-    const filter: Record<string, unknown> = {};
+    const filter: Record<string, unknown> = { businessId };
 
     if (category) filter.category = category;
     if (userId) filter.userId = userId;
@@ -51,8 +52,9 @@ export const exportLogs = async (
   next: NextFunction,
 ) => {
   try {
+    const businessId = req.businessId!;
     const { from, to, category, userId } = req.query;
-    const filter: Record<string, unknown> = {};
+    const filter: Record<string, unknown> = { businessId };
 
     if (category) filter.category = category;
     if (userId) filter.userId = userId;

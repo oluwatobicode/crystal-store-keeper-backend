@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { sendError, sendSuccess } from "../utils/response";
-import { ERROR_MESSAGES, HTTP_STATUS, SUPPLIER_MESSAGES } from "../config";
+import { HTTP_STATUS, SUPPLIER_MESSAGES } from "../config";
 import Supplier from "../models/Supplier";
 import { logAudit } from "../utils/auditLog";
 
