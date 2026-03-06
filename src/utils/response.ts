@@ -14,7 +14,7 @@ export const sendSuccess = <T>(
   data?: T,
 ): Response<ApiResponse<T>> => {
   return res.status(statusCode).json({
-    status: true,
+    success: true,
     message,
     data,
   });
@@ -27,7 +27,7 @@ export const sendError = (
   error?: string,
 ): Response<ApiResponse> => {
   return res.status(statusCode).json({
-    status: false,
+    success: false,
     message,
     error: error || undefined,
   });

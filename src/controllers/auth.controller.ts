@@ -7,7 +7,7 @@ import Business from "../models/Business";
 import Setting from "../models/Setting";
 import { HTTP_STATUS, SUCCESS_MESSAGES } from "../config";
 import { sendSuccess } from "../utils/response";
-import { signToken } from "../utils/token";
+import { signToken, blacklistToken } from "../utils/token";
 import { IRole } from "../types/role.types";
 
 // default roles to seed for every new business
@@ -303,8 +303,18 @@ export const login = async (
 };
 
 // log-out
-export const logout = (req: Request, res: Response, next: NextFunction) => {
+export const logout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (token) {
+      await blacklistToken(token);
+    }
+
     return sendSuccess(
       res,
       HTTP_STATUS.OK,

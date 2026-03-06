@@ -76,7 +76,25 @@ export const getAllRoles = async (
   try {
     const businessId = req.businessId!;
 
-    const roles = await Role.find({ businessId });
+    const { from, to } = req.query;
+
+    const filter: Record<string, unknown> = { businessId };
+
+    if (from || to) {
+      filter.createdAt = {} as Record<string, Date>;
+
+      if (from)
+        (filter.createdAt as Record<string, Date>).$gte = new Date(
+          from as string,
+        );
+
+      if (to)
+        (filter.createdAt as Record<string, Date>).$lte = new Date(
+          to as string,
+        );
+    }
+
+    const roles = await Role.find(filter);
 
     return sendSuccess(
       res,

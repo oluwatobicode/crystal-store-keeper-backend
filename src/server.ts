@@ -14,6 +14,7 @@ import {
   dashboardRoutes,
   authRoutes,
   salesRoutes,
+  backupRoutes,
 } from "./routes";
 import cors from "cors";
 import { globalErrorHandler } from "./middleware/error.middlware";
@@ -57,6 +58,7 @@ app.use("/api/v1/settings", settingsRoutes);
 app.use("/api/v1/inventory", inventoryRoutes);
 app.use("/api/v1/reports", reportRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
+app.use("/api/v1/backups", backupRoutes);
 
 // global error handler (must be after routes)
 app.use(globalErrorHandler);

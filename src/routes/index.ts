@@ -10,3 +10,4 @@ export { default as reportRoutes } from "./report.routes";
 export { default as dashboardRoutes } from "./dashboard.routes";
 export { default as authRoutes } from "./auth.routes";
 export { default as salesRoutes } from "./sales.routes";
+export { default as backupRoutes } from "./backup.routes";

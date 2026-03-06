@@ -39,14 +39,14 @@ Crystal Stock Keeper is a business management system for a retail store. It is N
 
 ## Tech Stack
 
-| Layer           | Technology                             |
-| --------------- | -------------------------------------- |
-| Frontend        | React, TypeScript, TailwindCSS         |
-| Backend         | Node.js, Express.js, TypeScript        |
-| Database        | MongoDB (Mongoose ODM)                 |
-| Auth            | JWT (access + refresh tokens) + bcrypt |
-| PDF Generation  | pdfkit or puppeteer                    |
-| Background Jobs | node-cron (for scheduled backups)      |
+| Layer           | Technology                                                                              |
+| --------------- | --------------------------------------------------------------------------------------- |
+| Frontend        | React, TypeScript, TailwindCSS                                                          |
+| Backend         | Node.js, Express.js, TypeScript                                                         |
+| Database        | MongoDB (Mongoose ODM)                                                                  |
+| Auth            | JWT (access + refresh tokens) + bcrypt                                                  |
+| PDF Generation  | return a json to the frontend the frontend renders and formats and a way to download it |
+| Background Jobs | node-cron (for scheduled backups)                                                       |
 
 ---
 

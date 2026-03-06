@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import { config } from "../config/app.config";
 import { AppError } from "./AppError";
 import { USER_MESSAGES } from "../config";
+import Blacklist from "../models/Blacklist";
 
 export interface TokenPayload {
   userId: string;
@@ -32,3 +33,27 @@ export const verifyToken = (token: string) => {
 };
 
 export const generateRefreshToken = () => {};
+
+/**
+ * Blacklist a JWT so it can no longer be used.
+ * The token is stored in the Blacklist collection with its expiry,
+ * and MongoDB's TTL index auto-cleans it once expired.
+ */
+export const blacklistToken = async (token: string): Promise<void> => {
+  const decoded = jwt.decode(token) as { exp: number } | null;
+
+  if (!decoded || !decoded.exp) {
+    throw new AppError(401, USER_MESSAGES.INVALID_CREDENTIALS);
+  }
+
+  const expiresAt = new Date(decoded.exp * 1000);
+
+  await Blacklist.create({ token, expiresAt });
+};
+
+// Check if a token has been blacklisted (i.e. user logged out).
+
+export const isTokenBlacklisted = async (token: string): Promise<boolean> => {
+  const entry = await Blacklist.findOne({ token });
+  return !!entry;
+};

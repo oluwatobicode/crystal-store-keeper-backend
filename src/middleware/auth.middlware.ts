@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "../utils/AppError";
 import { ERROR_MESSAGES, USER_MESSAGES } from "../config";
-import { verifyToken } from "../utils/token";
+import { verifyToken, isTokenBlacklisted } from "../utils/token";
 import User from "../models/User";
 import { IRole, Permission } from "../types/role.types";
 
@@ -19,22 +19,32 @@ export const protectRoutes = async (
       throw new AppError(401, USER_MESSAGES.INVALID_CREDENTIALS);
     }
 
-    // 3. Verify token
-    const decodedToken = verifyToken(token.split(" ")[1]);
+    const rawToken = token.split(" ")[1];
 
-    // 4. Check if user exists
+    // 3. Check if token has been blacklisted (user logged out)
+    if (await isTokenBlacklisted(rawToken)) {
+      throw new AppError(
+        401,
+        "Token has been invalidated, please log in again",
+      );
+    }
+
+    // 4. Verify token
+    const decodedToken = verifyToken(rawToken);
+
+    // 5. Check if user exists
     const user = await User.findById(decodedToken.userId).populate("role");
 
-    // 5. Check if user is valid
+    // 6. Check if user is valid
     if (!user) {
       throw new AppError(401, USER_MESSAGES.NOT_FOUND);
     }
 
-    // 6. Attach user to request
+    // 7. Attach user to request
     req.user = user;
     req.businessId = decodedToken.businessId;
 
-    // 7. Move to next middleware
+    // 8. Move to next middleware
     next();
   } catch (error) {
     next(error);

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { inventoryController } from "../controllers";
 import { protectRoutes, authorize } from "../middleware/auth.middlware";
+import { getLowStockProducts } from "../services/getLowStockProducts.service";
 
 const router = Router();
 
@@ -26,7 +27,7 @@ router.get(
   "/low-stock",
   protectRoutes,
   authorize("inventory.view"),
-  inventoryController.getLowStockProducts,
+  getLowStockProducts,
 );
 
 export default router;

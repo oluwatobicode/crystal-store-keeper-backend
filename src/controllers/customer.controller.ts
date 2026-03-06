@@ -79,7 +79,25 @@ export const getAllCustomers = async (
   try {
     const businessId = req.businessId!;
 
-    const customers = await Customer.find({ businessId });
+    const { from, to } = req.query;
+
+    const filter: Record<string, unknown> = { businessId };
+
+    if (from || to) {
+      filter.createdAt = {} as Record<string, Date>;
+
+      if (from)
+        (filter.createdAt as Record<string, Date>).$gte = new Date(
+          from as string,
+        );
+
+      if (to)
+        (filter.createdAt as Record<string, Date>).$lte = new Date(
+          to as string,
+        );
+    }
+
+    const customers = await Customer.find(filter);
 
     return sendSuccess(
       res,
