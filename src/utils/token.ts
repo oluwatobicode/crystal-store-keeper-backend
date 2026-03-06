@@ -31,6 +31,4 @@ export const verifyToken = (token: string) => {
   }
 };
 
-export const generateToken = () => {};
-
 export const generateRefreshToken = () => {};
