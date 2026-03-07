@@ -31,6 +31,7 @@ export const SUCCESS_MESSAGES = {
   FETCH_SUCCESS: "Fetched successfully",
   OTP_VERIFIED: "OTP verified successfully",
   OTP_RESENT: "OTP resent successfully",
+  PASSWORD_RESET_LINK_SENT: "Kindly check your mail",
 };
 
 export const PRODUCT_MESSAGES = {

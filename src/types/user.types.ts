@@ -20,5 +20,7 @@ export interface IUser extends Document {
   otp: string;
   otpExpiry: Date;
   lastLogin: Date | null;
+  resetToken: string | null;
+  resetTokenExpiry: Date | null;
   correctPassword(candidatePassword: string): Promise<boolean>;
 }

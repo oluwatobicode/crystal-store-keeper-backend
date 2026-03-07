@@ -1,16 +1,21 @@
 import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
+import crypto from "crypto";
 import { AppError } from "../utils/AppError";
 import User from "../models/User";
 import Role from "../models/Role";
 import Business from "../models/Business";
 import Setting from "../models/Setting";
-import { HTTP_STATUS, SUCCESS_MESSAGES } from "../config";
+import { HTTP_STATUS, SUCCESS_MESSAGES, config } from "../config";
 import { sendSuccess } from "../utils/response";
 import { signToken, blacklistToken } from "../utils/token";
 import { IRole } from "../types/role.types";
 import { generateOtp } from "../utils/otp";
-import { sendOtpEmail, welcomeEmail } from "../utils/email";
+import {
+  sendOtpEmail,
+  sendResetPasswordEmail,
+  welcomeEmail,
+} from "../utils/email";
 
 // admin role seeded automatically for every new business
 const ADMIN_ROLE = {
@@ -46,6 +51,8 @@ const ADMIN_ROLE = {
   isDefault: true,
 };
 
+//  SIGN UP
+
 export const signUp = async (
   req: Request,
   res: Response,
@@ -67,7 +74,6 @@ export const signUp = async (
       ownerPhone,
     } = req.body;
 
-    // basic validation
     if (
       !businessName ||
       !businessEmail ||
@@ -82,7 +88,6 @@ export const signUp = async (
       throw new AppError(HTTP_STATUS.BAD_REQUEST, "All fields are required");
     }
 
-    // check business email not already taken
     const existingBusiness = await Business.findOne({ businessEmail }).session(
       session,
     );
@@ -93,7 +98,6 @@ export const signUp = async (
       );
     }
 
-    // check owner email not already taken
     const existingUser = await User.findOne({ email: ownerEmail }).session(
       session,
     );
@@ -106,30 +110,19 @@ export const signUp = async (
 
     // 1. create the business
     const [business] = await Business.create(
-      [
-        {
-          businessName,
-          businessEmail,
-          businessPhone,
-          businessAddress,
-        },
-      ],
+      [{ businessName, businessEmail, businessPhone, businessAddress }],
       { session },
     );
 
     // 2. seed the admin role for this business
     const [adminRole] = await Role.create(
-      [
-        {
-          ...ADMIN_ROLE,
-          businessId: business._id,
-        },
-      ],
+      [{ ...ADMIN_ROLE, businessId: business._id }],
       { session },
     );
 
+    // 3. generate OTP for email verification
     const otp = generateOtp();
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     // 4. create the owner user
     const [owner] = await User.create(
@@ -143,7 +136,7 @@ export const signUp = async (
           role: adminRole._id,
           businessId: business._id,
           mustChangePassword: false,
-          otp: otp,
+          otp,
           otpExpiry: otpExpires,
         },
       ],
@@ -174,14 +167,13 @@ export const signUp = async (
       { session },
     );
 
-    // all good — commit everything
     await session.commitTransaction();
     session.endSession();
 
     // 7. send OTP email (fire-and-forget, don't block response)
     sendOtpEmail(owner.email, owner.fullname, otp).catch(console.error);
 
-    // 8. sign token with businessId
+    // 8. sign token
     const token = signToken(
       owner._id.toString(),
       owner.email,
@@ -215,7 +207,7 @@ export const signUp = async (
   }
 };
 
-// log in
+//  LOGIN
 
 export const login = async (
   req: Request,
@@ -225,19 +217,39 @@ export const login = async (
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      throw new AppError(
+        HTTP_STATUS.BAD_REQUEST,
+        "Email and password are required",
+      );
+    }
+
     const user = await User.findOne({ email })
       .select("+password")
       .populate<{ role: IRole }>("role");
 
     if (!user) {
-      throw new AppError(401, "Invalid credentials");
+      throw new AppError(HTTP_STATUS.UNAUTHORIZED, "Invalid credentials");
     }
 
     if (!(await user.correctPassword(password))) {
-      throw new AppError(401, "Invalid credentials");
+      throw new AppError(HTTP_STATUS.UNAUTHORIZED, "Invalid credentials");
     }
 
-    // update last login
+    if (!user.isVerified) {
+      throw new AppError(
+        HTTP_STATUS.UNAUTHORIZED,
+        "Please verify your email before logging in",
+      );
+    }
+
+    if (user.status !== "active") {
+      throw new AppError(
+        HTTP_STATUS.UNAUTHORIZED,
+        "Your account has been deactivated. Contact your admin",
+      );
+    }
+
     await User.findByIdAndUpdate(user._id, { lastLogin: new Date() });
 
     const token = signToken(
@@ -262,7 +274,8 @@ export const login = async (
   }
 };
 
-// log-out
+//  LOGOUT
+
 export const logout = async (
   req: Request,
   res: Response,
@@ -286,11 +299,7 @@ export const logout = async (
   }
 };
 
-export const changePassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {};
+//  VERIFY OTP
 
 export const verifyOtp = async (
   req: Request,
@@ -332,13 +341,13 @@ export const verifyOtp = async (
       throw new AppError(HTTP_STATUS.BAD_REQUEST, "Invalid OTP");
     }
 
-    // OTP is valid — mark user as verified and clear OTP fields
-    user.isVerified = true;
-    user.otp = undefined as any;
-    user.otpExpiry = undefined as any;
-    await user.save({ validateModifiedOnly: true });
+    // mark verified and clear OTP fields
+    await User.findByIdAndUpdate(user._id, {
+      isVerified: true,
+      otp: null,
+      otpExpiry: null,
+    });
 
-    // send welcome email (fire-and-forget)
     welcomeEmail(
       user.email,
       user.fullname,
@@ -356,6 +365,8 @@ export const verifyOtp = async (
   }
 };
 
+//  RESEND OTP
+
 export const resendOtp = async (
   req: Request,
   res: Response,
@@ -371,7 +382,13 @@ export const resendOtp = async (
     const user = await User.findOne({ email });
 
     if (!user) {
-      throw new AppError(HTTP_STATUS.NOT_FOUND, "User not found");
+      // don't reveal whether email exists
+      return sendSuccess(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.OTP_RESENT,
+        null,
+      );
     }
 
     if (user.isVerified) {
@@ -383,10 +400,172 @@ export const resendOtp = async (
 
     await User.findByIdAndUpdate(user._id, { otp, otpExpiry });
 
-    // send OTP email (fire-and-forget)
     sendOtpEmail(user.email, user.fullname, otp).catch(console.error);
 
     return sendSuccess(res, HTTP_STATUS.OK, SUCCESS_MESSAGES.OTP_RESENT, null);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// SEND PASSWORD RESET LINK
+
+export const sendPasswordResetLink = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      throw new AppError(HTTP_STATUS.BAD_REQUEST, "Email is required");
+    }
+
+    // always return success — never reveal whether email exists
+    const user = await User.findOne({ email });
+    if (!user || !user.isVerified) {
+      return sendSuccess(
+        res,
+        HTTP_STATUS.OK,
+        SUCCESS_MESSAGES.PASSWORD_RESET_LINK_SENT,
+        null,
+      );
+    }
+
+    // generate a secure random token (NOT a JWT)
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetTokenExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    await User.findByIdAndUpdate(user._id, { resetToken, resetTokenExpiry });
+
+    const resetLink = `${config.frontendUrl}/reset-password?token=${resetToken}`;
+
+    sendResetPasswordEmail(user.email, user.fullname, resetLink).catch(
+      console.error,
+    );
+
+    return sendSuccess(
+      res,
+      HTTP_STATUS.OK,
+      SUCCESS_MESSAGES.PASSWORD_RESET_LINK_SENT,
+      null,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+// RESET PASSWORD
+
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      throw new AppError(
+        HTTP_STATUS.BAD_REQUEST,
+        "Token and new password are required",
+      );
+    }
+
+    if (newPassword.length < 8) {
+      throw new AppError(
+        HTTP_STATUS.BAD_REQUEST,
+        "Password must be at least 8 characters",
+      );
+    }
+
+    // find user with this token that hasn't expired
+    const user = await User.findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: new Date() },
+    }).select("+resetToken +resetTokenExpiry");
+
+    if (!user) {
+      throw new AppError(
+        HTTP_STATUS.BAD_REQUEST,
+        "Invalid or expired reset link",
+      );
+    }
+
+    // update password and clear reset token fields
+    user.password = newPassword;
+    user.resetToken = null;
+    user.resetTokenExpiry = null;
+    user.mustChangePassword = false;
+    await user.save(); // triggers the bcrypt pre-save hook
+
+    return sendSuccess(
+      res,
+      HTTP_STATUS.OK,
+      "Password reset successfully. Please log in",
+      null,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+//  CHANGE PASSWORD (logged in user)
+
+export const changePassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      throw new AppError(
+        HTTP_STATUS.BAD_REQUEST,
+        "Current password and new password are required",
+      );
+    }
+
+    if (newPassword.length < 8) {
+      throw new AppError(
+        HTTP_STATUS.BAD_REQUEST,
+        "New password must be at least 8 characters",
+      );
+    }
+
+    if (currentPassword === newPassword) {
+      throw new AppError(
+        HTTP_STATUS.BAD_REQUEST,
+        "New password must be different from current password",
+      );
+    }
+
+    const user = await User.findById(req.user!._id).select("+password");
+
+    if (!user) {
+      throw new AppError(HTTP_STATUS.NOT_FOUND, "User not found");
+    }
+
+    const isCorrect = await user.correctPassword(currentPassword);
+    if (!isCorrect) {
+      throw new AppError(
+        HTTP_STATUS.UNAUTHORIZED,
+        "Current password is incorrect",
+      );
+    }
+
+    user.password = newPassword;
+    user.mustChangePassword = false;
+    await user.save();
+
+    return sendSuccess(
+      res,
+      HTTP_STATUS.OK,
+      "Password changed successfully",
+      null,
+    );
   } catch (error) {
     next(error);
   }

@@ -2,17 +2,17 @@
 
 - [✅ ] OTP verification for sign up
 - [ ✅] Welcome email
-- [ ] generateRefreshToken
-- [ ] Update password
-- [ ] Forget password
+- [✅ ] generateRefreshToken
+- [✅ ] Update password
+- [✅ ] Forget password
 - [✅ ] Logout with JWT blacklisting
 - [ ✅] Email utils (config + send helpers)
 
 ## Features
 
-- [ ] Payments controller
-- [✅ ] Backup endpoints (CSV/JSON export, restore, schedule)
 - [ ✅] Invoice PDF generation (pdfkit) --front-end handles it
+- [✅ ] Backup endpoints (CSV/JSON export, restore, schedule)
+- [ ] Payments controller
 - [ ] Partial payment top-up (PATCH /api/sales/:id/payment)
 - [ ] Manager approval for large discounts
 
