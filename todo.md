@@ -1,12 +1,12 @@
 ## Auth & Security
 
-- [ ] OTP verification for sign up
-- [ ] Welcome email
+- [✅ ] OTP verification for sign up
+- [ ✅] Welcome email
 - [ ] generateRefreshToken
 - [ ] Update password
 - [ ] Forget password
 - [✅ ] Logout with JWT blacklisting
-- [ ] Email utils (config + send helpers)
+- [ ✅] Email utils (config + send helpers)
 
 ## Features
 

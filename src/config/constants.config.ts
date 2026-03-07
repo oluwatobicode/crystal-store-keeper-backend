@@ -29,6 +29,8 @@ export const SUCCESS_MESSAGES = {
   DELETE_SUCCESS: "Delete successful",
   CREATE_SUCCESS: "Create successful",
   FETCH_SUCCESS: "Fetched successfully",
+  OTP_VERIFIED: "OTP verified successfully",
+  OTP_RESENT: "OTP resent successfully",
 };
 
 export const PRODUCT_MESSAGES = {

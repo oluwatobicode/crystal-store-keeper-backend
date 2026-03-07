@@ -12,7 +12,6 @@ const roleSchema = new mongoose.Schema<IRole>(
     roleName: {
       type: String,
       required: true,
-      unique: true,
     },
     description: {
       type: String,
@@ -32,6 +31,9 @@ const roleSchema = new mongoose.Schema<IRole>(
     timestamps: true,
   },
 );
+
+// unique role name per business, not globally
+roleSchema.index({ roleName: 1, businessId: 1 }, { unique: true });
 
 const Role: Model<IRole> = mongoose.model<IRole>("Role", roleSchema);
 export default Role;

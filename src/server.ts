@@ -46,7 +46,7 @@ app.get("/", (req: Request, res: Response) => {
 // loggin in
 app.use("/api/v1/auth", authRoutes);
 
-// proetcted routes
+// protected routes
 app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/suppliers", supplierRoutes);
 app.use("/api/v1/customers", customerRoutes);

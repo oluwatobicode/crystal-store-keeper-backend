@@ -9,83 +9,42 @@ import { HTTP_STATUS, SUCCESS_MESSAGES } from "../config";
 import { sendSuccess } from "../utils/response";
 import { signToken, blacklistToken } from "../utils/token";
 import { IRole } from "../types/role.types";
+import { generateOtp } from "../utils/otp";
+import { sendOtpEmail, welcomeEmail } from "../utils/email";
 
-// default roles to seed for every new business
-const DEFAULT_ROLES = [
-  {
-    roleName: "Admin",
-    description: "Full access to everything",
-    permissions: [
-      "dashboard.view",
-      "pos.operate",
-      "pos.discount.small",
-      "pos.discount.large",
-      "pos.refund",
-      "customers.view",
-      "customers.manage",
-      "customer.history",
-      "transactions.view",
-      "transactions.view.one",
-      "transactions.reconcile",
-      "transactions.mange.payments",
-      "inventory.view",
-      "inventory.receive",
-      "inventory.adjust",
-      "inventory.manage",
-      "reports.view",
-      "reports.export",
-      "reports.profit",
-      "users.manage",
-      "user.roles",
-      "user.activity",
-      "settings.manage",
-      "audit.view",
-      "backup.manage",
-    ],
-    isDefault: true,
-  },
-  {
-    roleName: "Manager",
-    description: "Access to everything except user management and settings",
-    permissions: [
-      "dashboard.view",
-      "pos.operate",
-      "pos.discount.small",
-      "pos.discount.large",
-      "pos.refund",
-      "customers.view",
-      "customers.manage",
-      "customer.history",
-      "transactions.view",
-      "transactions.view.one",
-      "transactions.reconcile",
-      "transactions.mange.payments",
-      "inventory.view",
-      "inventory.receive",
-      "inventory.adjust",
-      "inventory.manage",
-      "reports.view",
-      "reports.export",
-      "reports.profit",
-      "user.activity",
-      "audit.view",
-    ],
-    isDefault: true,
-  },
-  {
-    roleName: "Cashier",
-    description: "Basic POS and inventory viewing only",
-    permissions: [
-      "dashboard.view",
-      "pos.operate",
-      "pos.discount.small",
-      "transactions.view",
-      "customers.view",
-      "inventory.view",
-    ],
-    isDefault: true,
-  },
-];
+// admin role seeded automatically for every new business
+const ADMIN_ROLE = {
+  roleName: "Admin",
+  description: "Full access to everything",
+  permissions: [
+    "dashboard.view",
+    "pos.operate",
+    "pos.discount.small",
+    "pos.discount.large",
+    "pos.refund",
+    "customers.view",
+    "customers.manage",
+    "customer.history",
+    "transactions.view",
+    "transactions.view.one",
+    "transactions.reconcile",
+    "transactions.mange.payments",
+    "inventory.view",
+    "inventory.receive",
+    "inventory.adjust",
+    "inventory.manage",
+    "reports.view",
+    "reports.export",
+    "reports.profit",
+    "users.manage",
+    "user.roles",
+    "user.activity",
+    "settings.manage",
+    "audit.view",
+    "backup.manage",
+  ],
+  isDefault: true,
+};
 
 export const signUp = async (
   req: Request,
@@ -158,23 +117,19 @@ export const signUp = async (
       { session },
     );
 
-    // 2. seed the 3 default roles for this business
-    const seededRoles = await Role.create(
-      DEFAULT_ROLES.map((role) => ({
-        ...role,
-        businessId: business._id,
-      })),
-      { session, ordered: true },
+    // 2. seed the admin role for this business
+    const [adminRole] = await Role.create(
+      [
+        {
+          ...ADMIN_ROLE,
+          businessId: business._id,
+        },
+      ],
+      { session },
     );
 
-    // 3. find the admin role from the seeded roles
-    const adminRole = seededRoles.find((r) => r.roleName === "Admin");
-    if (!adminRole) {
-      throw new AppError(
-        HTTP_STATUS.INTERNAL_SERVER_ERROR,
-        "Failed to seed roles",
-      );
-    }
+    const otp = generateOtp();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
     // 4. create the owner user
     const [owner] = await User.create(
@@ -188,6 +143,8 @@ export const signUp = async (
           role: adminRole._id,
           businessId: business._id,
           mustChangePassword: false,
+          otp: otp,
+          otpExpiry: otpExpires,
         },
       ],
       { session },
@@ -221,7 +178,10 @@ export const signUp = async (
     await session.commitTransaction();
     session.endSession();
 
-    // 7. sign token with businessId
+    // 7. send OTP email (fire-and-forget, don't block response)
+    sendOtpEmail(owner.email, owner.fullname, otp).catch(console.error);
+
+    // 8. sign token with businessId
     const token = signToken(
       owner._id.toString(),
       owner.email,
@@ -321,6 +281,112 @@ export const logout = async (
       SUCCESS_MESSAGES.LOGOUT_SUCCESS,
       null,
     );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const changePassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {};
+
+export const verifyOtp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      throw new AppError(HTTP_STATUS.BAD_REQUEST, "Email and OTP are required");
+    }
+
+    const user = await User.findOne({ email }).select("+otp +otpExpiry");
+
+    if (!user) {
+      throw new AppError(HTTP_STATUS.NOT_FOUND, "User not found");
+    }
+
+    if (user.isVerified) {
+      throw new AppError(HTTP_STATUS.BAD_REQUEST, "User is already verified");
+    }
+
+    if (!user.otp || !user.otpExpiry) {
+      throw new AppError(
+        HTTP_STATUS.BAD_REQUEST,
+        "No OTP found. Please request a new one",
+      );
+    }
+
+    if (user.otpExpiry < new Date()) {
+      throw new AppError(
+        HTTP_STATUS.BAD_REQUEST,
+        "OTP has expired. Please request a new one",
+      );
+    }
+
+    if (user.otp !== otp) {
+      throw new AppError(HTTP_STATUS.BAD_REQUEST, "Invalid OTP");
+    }
+
+    // OTP is valid — mark user as verified and clear OTP fields
+    user.isVerified = true;
+    user.otp = undefined as any;
+    user.otpExpiry = undefined as any;
+    await user.save({ validateModifiedOnly: true });
+
+    // send welcome email (fire-and-forget)
+    welcomeEmail(
+      user.email,
+      user.fullname,
+      `${process.env.FRONTEND_URL}/dashboard`,
+    ).catch(console.error);
+
+    return sendSuccess(
+      res,
+      HTTP_STATUS.OK,
+      SUCCESS_MESSAGES.OTP_VERIFIED,
+      null,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resendOtp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      throw new AppError(HTTP_STATUS.BAD_REQUEST, "Email is required");
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      throw new AppError(HTTP_STATUS.NOT_FOUND, "User not found");
+    }
+
+    if (user.isVerified) {
+      throw new AppError(HTTP_STATUS.BAD_REQUEST, "User is already verified");
+    }
+
+    const otp = generateOtp();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+    await User.findByIdAndUpdate(user._id, { otp, otpExpiry });
+
+    // send OTP email (fire-and-forget)
+    sendOtpEmail(user.email, user.fullname, otp).catch(console.error);
+
+    return sendSuccess(res, HTTP_STATUS.OK, SUCCESS_MESSAGES.OTP_RESENT, null);
   } catch (error) {
     next(error);
   }

@@ -11,4 +11,5 @@ export const config = {
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
   frontendUrl: process.env.FRONTEND_URL,
+  resendAPiKey: process.env.RESEND_API_KEY,
 };

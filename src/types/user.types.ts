@@ -16,6 +16,9 @@ export interface IUser extends Document {
   contactNumber: string;
   status: "active" | "inactive" | "suspended";
   mustChangePassword: boolean;
+  isVerified: boolean;
+  otp: string;
+  otpExpiry: Date;
   lastLogin: Date | null;
   correctPassword(candidatePassword: string): Promise<boolean>;
 }
