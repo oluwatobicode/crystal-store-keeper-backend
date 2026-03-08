@@ -20,6 +20,6 @@
 
 - [ ✅ ] Pagination on all list endpoints
 - [ ✅ ] Fix adjustStock using req.body.performedBy → use req.user.\_id
-- [ ] Fix receiveStock — wrap in transaction
 - [✅ ] Fix response.ts — status: "true" → success: true
 - [✅ ] Extract duplicate getLowStockProducts to shared service
+- [ ] Fix receiveStock — wrap in transaction

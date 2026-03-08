@@ -28,6 +28,12 @@ const settingSchema = new mongoose.Schema<ISetting>(
       sessionTimeoutMinutes: { type: Number, default: 480 },
       managerApprovalDiscountThreshold: { type: Number, default: 15 },
     },
+    telegram: {
+      connected: { type: Boolean, default: false },
+      chatId: { type: Number, default: null },
+      connectCode: { type: String, default: null },
+      connectedAt: { type: Date, default: null },
+    },
     backup: {
       scheduleEnabled: { type: Boolean, default: false },
       scheduleFrequency: {

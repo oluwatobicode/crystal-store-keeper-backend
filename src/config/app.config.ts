@@ -12,4 +12,6 @@ export const config = {
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
   frontendUrl: process.env.FRONTEND_URL,
   resendAPiKey: process.env.RESEND_API_KEY,
+  telegramApiKey: process.env.TELEGRAM_BOT_TOKEN as string,
+  geminiApiKey: process.env.GEMINI_API_KEY,
 };

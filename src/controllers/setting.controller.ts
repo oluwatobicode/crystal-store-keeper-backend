@@ -3,6 +3,7 @@ import Setting from "../models/Setting";
 import { sendError, sendSuccess } from "../utils/response";
 import { BUSINESS_MESSAGES, ERROR_MESSAGES, HTTP_STATUS } from "../config";
 import { logAudit } from "../utils/auditLog";
+import crypto from "crypto";
 
 // this is to get the settings (single document)
 export const getBusinessProfile = async (
@@ -83,3 +84,21 @@ export const restoreBackup = (
   res: Response,
   next: NextFunction,
 ) => {};
+
+export const generateTelegramCode = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const businessId = req.businessId!;
+  const connectCode = `CRYSTAL-${crypto.randomBytes(3).toString("hex")}`;
+
+  await Setting.findOneAndUpdate(
+    { businessId },
+    { "telegram.connectCode": connectCode, "telegram.connected": false },
+  );
+
+  return sendSuccess(res, HTTP_STATUS.OK, "Connect code generated", {
+    connectCode,
+  });
+};

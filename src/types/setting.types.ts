@@ -22,6 +22,12 @@ export interface ISetting extends Document {
     sessionTimeoutMinutes: number;
     managerApprovalDiscountThreshold: number;
   };
+  telegram: {
+    connected: boolean;
+    chatId: number | null;
+    connectCode: string | null;
+    connectedAt: Date | null;
+  };
   backup: {
     scheduleEnabled: boolean;
     scheduleFrequency: "daily" | "weekly" | "monthly" | null;

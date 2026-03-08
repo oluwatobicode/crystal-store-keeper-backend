@@ -16,6 +16,7 @@ import {
   salesRoutes,
   backupRoutes,
 } from "./routes";
+import "./services/telegram.service"; // starts the bot
 import cors from "cors";
 import { globalErrorHandler } from "./middleware/error.middlware";
 

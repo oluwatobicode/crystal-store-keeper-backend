@@ -67,6 +67,7 @@ export const receiveStock = async (
       stockBefore,
       stockAfter,
       performedBy: req.user!._id,
+      businessId,
       notes: notes || `Received ${quantity} units from supplier`,
     });
 
@@ -158,6 +159,7 @@ export const adjustStock = async (
       adjustmentType,
       quantityChange,
       reason,
+      businessId,
       performedBy: req.user!._id,
     });
 
@@ -176,6 +178,7 @@ export const adjustStock = async (
       referenceId: adjustment._id,
       referenceModel: "Adjustment",
       performedBy: req.user!._id,
+      businessId,
       notes: notes || reason,
     });
 
