@@ -11,3 +11,4 @@ export { default as dashboardRoutes } from "./dashboard.routes";
 export { default as authRoutes } from "./auth.routes";
 export { default as salesRoutes } from "./sales.routes";
 export { default as backupRoutes } from "./backup.routes";
+export { default as webhookRoutes } from "./webhook.routes";

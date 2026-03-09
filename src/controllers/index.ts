@@ -10,3 +10,4 @@ export * as reportController from "./reports.controller";
 export * as dashboardController from "./dashboard.controller";
 export * as authController from "./auth.controller";
 export * as backupController from "./backup.controller";
+export * as webhookController from "./webhook.controller";

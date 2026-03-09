@@ -73,18 +73,6 @@ export const updateBusinessProfile = async (
   }
 };
 
-export const getBackup = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {};
-
-export const restoreBackup = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {};
-
 export const generateTelegramCode = async (
   req: Request,
   res: Response,

@@ -9,19 +9,19 @@ const bot = new TelegramBot(token, { polling: true });
 
 console.log("🤖 Telegram bot is running...");
 
-// ─── HELPER: send typing indicator ───────────────────────────────────────────
+//  HELPER: send typing indicator
 
 const sendTyping = (chatId: number) => {
   bot.sendChatAction(chatId, "typing");
 };
 
-// ─── HELPER: format error message ────────────────────────────────────────────
+//  HELPER: format error message
 
 const sendError = async (chatId: number, message: string) => {
   await bot.sendMessage(chatId, message, { parse_mode: "Markdown" });
 };
 
-// ─── CONNECT COMMAND ─────────────────────────────────────────────────────────
+//  CONNECT COMMAND
 // store owner sends their connect code to link their business to this chat
 // e.g. /connect CRYSTAL-a3f9b2
 
@@ -80,7 +80,7 @@ bot.onText(/\/connect (.+)/, async (msg, match) => {
   }
 });
 
-// ─── START COMMAND ────────────────────────────────────────────────────────────
+//  START COMMAND
 
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
@@ -92,7 +92,7 @@ bot.onText(/\/start/, async (msg) => {
   );
 });
 
-// ─── DISCONNECT COMMAND ───────────────────────────────────────────────────────
+//  DISCONNECT COMMAND
 
 bot.onText(/\/disconnect/, async (msg) => {
   const chatId = msg.chat.id;
@@ -120,7 +120,7 @@ bot.onText(/\/disconnect/, async (msg) => {
   }
 });
 
-// ─── HELP COMMAND ─────────────────────────────────────────────────────────────
+//  HELP COMMAND
 
 bot.onText(/\/help/, async (msg) => {
   const chatId = msg.chat.id;
@@ -132,7 +132,7 @@ bot.onText(/\/help/, async (msg) => {
   );
 });
 
-// ─── MAIN MESSAGE HANDLER ─────────────────────────────────────────────────────
+//  MAIN MESSAGE HANDLER
 // handles all regular text messages (not commands)
 
 bot.on("message", async (msg) => {
@@ -180,7 +180,7 @@ bot.on("message", async (msg) => {
   }
 });
 
-// ─── ERROR HANDLER ────────────────────────────────────────────────────────────
+//  ERROR HANDLER
 
 bot.on("polling_error", (error) => {
   console.error("Telegram polling error:", error);

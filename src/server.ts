@@ -15,8 +15,9 @@ import {
   authRoutes,
   salesRoutes,
   backupRoutes,
+  webhookRoutes,
 } from "./routes";
-import "./services/telegram.service"; // starts the bot
+import "./services/telegram.service";
 import cors from "cors";
 import { globalErrorHandler } from "./middleware/error.middlware";
 
@@ -60,6 +61,7 @@ app.use("/api/v1/inventory", inventoryRoutes);
 app.use("/api/v1/reports", reportRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/backups", backupRoutes);
+app.use("/api/v1/webhooks", webhookRoutes);
 
 // global error handler (must be after routes)
 app.use(globalErrorHandler);
