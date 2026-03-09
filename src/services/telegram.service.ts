@@ -5,7 +5,7 @@ import { processMessage } from "./ai.service";
 const token = process.env.TELEGRAM_BOT_TOKEN!;
 
 // polling = no webhook needed during development
-const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(token, { webHook: true });
 
 console.log("🤖 Telegram bot is running...");
 

@@ -20,6 +20,7 @@ import {
 import "./services/telegram.service";
 import cors from "cors";
 import { globalErrorHandler } from "./middleware/error.middlware";
+import bot from "./services/telegram.service";
 
 const app: Application = express();
 const port = process.env.PORT || 5000;
@@ -62,6 +63,9 @@ app.use("/api/v1/reports", reportRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/backups", backupRoutes);
 app.use("/api/v1/webhooks", webhookRoutes);
+
+// webhook for the telegram bot
+bot.setWebHook(`${process.env.APP_URL}/api/v1/webhooks/telegram`);
 
 // global error handler (must be after routes)
 app.use(globalErrorHandler);
