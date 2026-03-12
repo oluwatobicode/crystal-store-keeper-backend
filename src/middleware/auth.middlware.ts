@@ -62,7 +62,7 @@ export const authorize = (permission: Permission) => {
       // role is populated by protectRoutes, cast it to IRole to access permissions
       const role = req.user.role as unknown as IRole;
 
-      if (!role.permissions.includes(permission)) {
+      if (!role.permission.includes(permission)) {
         throw new AppError(
           403,
           "You do not have permission to perform this action",

@@ -9,8 +9,8 @@ const app_config_1 = require("../config/app.config");
 const AppError_1 = require("./AppError");
 const config_1 = require("../config");
 const Blacklist_1 = __importDefault(require("../models/Blacklist"));
-const signToken = (userId, email, role, permissions, businessId) => {
-    return jsonwebtoken_1.default.sign({ userId, email, role, permissions, businessId }, app_config_1.config.jwtSecret, { expiresIn: "7d" });
+const signToken = (userId, email, fullname, username, role, permissions, businessId) => {
+    return jsonwebtoken_1.default.sign({ userId, email, role, permissions, businessId, fullname, username }, app_config_1.config.jwtSecret, { expiresIn: "7d" });
 };
 exports.signToken = signToken;
 const verifyToken = (token) => {

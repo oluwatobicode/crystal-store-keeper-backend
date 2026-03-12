@@ -116,7 +116,7 @@ const signUp = async (req, res, next) => {
         // 7. send OTP email (fire-and-forget, don't block response)
         (0, email_1.sendOtpEmail)(owner.email, owner.fullname, otp).catch(console.error);
         // 8. sign token
-        const token = (0, token_1.signToken)(owner._id.toString(), owner.email, adminRole.roleName, adminRole.permissions, business._id.toString());
+        const token = (0, token_1.signToken)(owner._id.toString(), owner.email, owner.fullname, owner.username, adminRole.roleName, adminRole.permission, business._id.toString());
         return (0, response_1.sendSuccess)(res, config_1.HTTP_STATUS.CREATED, config_1.SUCCESS_MESSAGES.SIGNUP_SUCCESS, {
             business: {
                 _id: business._id,
@@ -162,7 +162,7 @@ const login = async (req, res, next) => {
             throw new AppError_1.AppError(config_1.HTTP_STATUS.UNAUTHORIZED, "Your account has been deactivated. Contact your admin");
         }
         await User_1.default.findByIdAndUpdate(user._id, { lastLogin: new Date() });
-        const token = (0, token_1.signToken)(user._id.toString(), user.email, user.role.roleName, user.role.permissions, user.businessId.toString());
+        const token = (0, token_1.signToken)(user._id.toString(), user.email, user.fullname, user.username, user.role.roleName, user.role.permission, user.businessId.toString());
         return (0, response_1.sendSuccess)(res, config_1.HTTP_STATUS.OK, config_1.SUCCESS_MESSAGES.LOGIN_SUCCESS, {
             token,
             user: {
@@ -174,7 +174,7 @@ const login = async (req, res, next) => {
                 role: {
                     _id: user.role._id,
                     roleName: user.role.roleName,
-                    permission: user.role.permissions,
+                    permissions: user.role.permission,
                 },
             },
         });

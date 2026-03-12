@@ -49,7 +49,7 @@ const authorize = (permission) => {
             }
             // role is populated by protectRoutes, cast it to IRole to access permissions
             const role = req.user.role;
-            if (!role.permissions.includes(permission)) {
+            if (!role.permission.includes(permission)) {
                 throw new AppError_1.AppError(403, "You do not have permission to perform this action");
             }
             next();
