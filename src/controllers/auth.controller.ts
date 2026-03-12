@@ -177,8 +177,11 @@ export const signUp = async (
     const token = signToken(
       owner._id.toString(),
       owner.email,
+      owner.fullname,
+      owner.username,
+
       adminRole.roleName,
-      adminRole.permissions,
+      adminRole.permission,
       business._id.toString(),
     );
 
@@ -256,8 +259,10 @@ export const login = async (
     const token = signToken(
       user._id.toString(),
       user.email,
+      user.fullname,
+      user.username,
       user.role.roleName,
-      user.role.permissions,
+      user.role.permission,
       user.businessId.toString(),
     );
 
@@ -272,7 +277,7 @@ export const login = async (
         role: {
           _id: user.role._id,
           roleName: user.role.roleName,
-          permission: user.role.permissions,
+          permissions: user.role.permission,
         },
       },
     });
