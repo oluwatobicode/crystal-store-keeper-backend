@@ -17,7 +17,7 @@ const roleSchema = new mongoose.Schema<IRole>(
       type: String,
       required: true,
     },
-    permission: {
+    permissions: {
       type: [String],
       enum: ALL_PERMISSIONS,
       default: [],

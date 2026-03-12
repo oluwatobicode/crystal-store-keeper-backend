@@ -181,7 +181,7 @@ export const signUp = async (
       owner.username,
 
       adminRole.roleName,
-      adminRole.permission,
+      adminRole.permissions,
       business._id.toString(),
     );
 
@@ -262,7 +262,7 @@ export const login = async (
       user.fullname,
       user.username,
       user.role.roleName,
-      user.role.permission,
+      user.role.permissions,
       user.businessId.toString(),
     );
 
@@ -277,7 +277,7 @@ export const login = async (
         role: {
           _id: user.role._id,
           roleName: user.role.roleName,
-          permissions: user.role.permission,
+          permissions: user.role.permissions,
         },
       },
     });

@@ -49,6 +49,6 @@ export interface IRole extends Document {
   roleName: string;
   businessId: Types.ObjectId;
   description: string;
-  permission: Permission[];
+  permissions: Permission[];
   isDefault: boolean;
 }
