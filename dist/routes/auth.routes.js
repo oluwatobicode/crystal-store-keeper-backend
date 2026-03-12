@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const controllers_1 = require("../controllers");
+const auth_middlware_1 = require("../middleware/auth.middlware");
+const router = (0, express_1.Router)();
+router.post("/sign-up", controllers_1.authController.signUp);
+router.post("/login", controllers_1.authController.login);
+router.post("/logout", controllers_1.authController.logout);
+router.post("/verify-otp", controllers_1.authController.verifyOtp);
+router.post("/resend-otp", controllers_1.authController.resendOtp);
+router.post("/reset-link", controllers_1.authController.sendPasswordResetLink);
+router.post("/reset-password", controllers_1.authController.resetPassword);
+router.patch("/change-password", auth_middlware_1.protectRoutes, controllers_1.authController.changePassword);
+exports.default = router;

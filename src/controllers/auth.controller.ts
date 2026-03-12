@@ -178,6 +178,7 @@ export const signUp = async (
       owner._id.toString(),
       owner.email,
       adminRole.roleName,
+      adminRole.permissions,
       business._id.toString(),
     );
 
@@ -256,6 +257,7 @@ export const login = async (
       user._id.toString(),
       user.email,
       user.role.roleName,
+      user.role.permissions,
       user.businessId.toString(),
     );
 
@@ -267,6 +269,11 @@ export const login = async (
         email: user.email,
         username: user.username,
         mustChangePassword: user.mustChangePassword,
+        role: {
+          _id: user.role._id,
+          roleName: user.role.roleName,
+          permission: user.role.permissions,
+        },
       },
     });
   } catch (error) {

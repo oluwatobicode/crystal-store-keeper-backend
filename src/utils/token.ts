@@ -8,6 +8,7 @@ export interface TokenPayload {
   userId: string;
   email: string;
   role: string;
+  permissions: string[];
   businessId: string;
 }
 
@@ -15,10 +16,11 @@ export const signToken = (
   userId: string,
   email: string,
   role: string,
+  permissions: string[],
   businessId: string,
 ): string => {
   return jwt.sign(
-    { userId, email, role, businessId },
+    { userId, email, role, permissions, businessId },
     config.jwtSecret as jwt.Secret,
     { expiresIn: "7d" } as jwt.SignOptions,
   );

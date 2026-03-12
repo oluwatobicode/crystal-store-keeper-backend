@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const controllers_1 = require("../controllers");
+const auth_middlware_1 = require("../middleware/auth.middlware");
+const router = (0, express_1.Router)();
+router.get("/customers/export-csv", auth_middlware_1.protectRoutes, controllers_1.backupController.exportCustomers);
+router.get("/sales/export-csv", auth_middlware_1.protectRoutes, controllers_1.backupController.exportSales);
+router.get("/inventory/export-csv", auth_middlware_1.protectRoutes, controllers_1.backupController.exportInventory);
+exports.default = router;

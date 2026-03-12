@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const controllers_1 = require("../controllers");
+const auth_middlware_1 = require("../middleware/auth.middlware");
+const getLowStockProducts_service_1 = require("../services/getLowStockProducts.service");
+const router = (0, express_1.Router)();
+router.get("/analysis", auth_middlware_1.protectRoutes, (0, auth_middlware_1.authorize)("dashboard.view"), controllers_1.dashboardController.dashboardAnalysis);
+router.get("/low-stock", auth_middlware_1.protectRoutes, (0, auth_middlware_1.authorize)("dashboard.view"), getLowStockProducts_service_1.getLowStockProducts);
+router.get("/recent-transactions", auth_middlware_1.protectRoutes, (0, auth_middlware_1.authorize)("dashboard.view"), controllers_1.dashboardController.getRecentTransactions);
+exports.default = router;
