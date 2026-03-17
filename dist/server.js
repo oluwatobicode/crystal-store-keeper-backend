@@ -50,6 +50,7 @@ app.use("/api/v1/reports", routes_1.reportRoutes);
 app.use("/api/v1/dashboard", routes_1.dashboardRoutes);
 app.use("/api/v1/backups", routes_1.backupRoutes);
 app.use("/api/v1/webhooks", routes_1.webhookRoutes);
+app.use("/api/v1/notifications", routes_1.notificationRoutes);
 // webhook for the telegram bot
 telegram_service_1.default.setWebHook(`${process.env.APP_URL}/api/v1/webhooks/telegram`);
 // global error handler (must be after routes)

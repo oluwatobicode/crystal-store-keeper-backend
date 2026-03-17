@@ -37,6 +37,8 @@ const supplierSchema = new mongoose.Schema<ISupplier>(
   },
 );
 
+supplierSchema.index({ businessId: 1 });
+
 const Supplier: Model<ISupplier> = mongoose.model<ISupplier>(
   "Supplier",
   supplierSchema,

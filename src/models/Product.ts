@@ -27,7 +27,6 @@ const productSchema = new mongoose.Schema<IProduct>(
     SKU: {
       type: String,
       required: true,
-      unique: true,
       uppercase: true,
     },
     currentStock: {
@@ -64,6 +63,10 @@ const productSchema = new mongoose.Schema<IProduct>(
     timestamps: true,
   },
 );
+
+// SKU must be unique per business, not globally
+productSchema.index({ SKU: 1, businessId: 1 }, { unique: true });
+productSchema.index({ businessId: 1 });
 
 const Product: Model<IProduct> = mongoose.model<IProduct>(
   "Product",

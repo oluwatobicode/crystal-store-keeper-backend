@@ -48,9 +48,9 @@ const auditLogSchema = new mongoose.Schema<IAuditLog>(
   },
 );
 
-auditLogSchema.index({ createdAt: -1 });
-auditLogSchema.index({ category: 1, createdAt: -1 });
-auditLogSchema.index({ userId: 1, createdAt: -1 });
+auditLogSchema.index({ businessId: 1, createdAt: -1 });
+auditLogSchema.index({ businessId: 1, category: 1, createdAt: -1 });
+auditLogSchema.index({ businessId: 1, userId: 1, createdAt: -1 });
 
 const AuditLog: Model<IAuditLog> = mongoose.model<IAuditLog>(
   "AuditLog",

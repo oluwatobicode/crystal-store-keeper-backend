@@ -52,8 +52,6 @@ const saleSchema = new mongoose_1.default.Schema({
     invoiceId: {
         type: String,
         required: true,
-        unique: true,
-        index: true,
     },
     salesPersonId: {
         type: mongoose_1.default.Schema.Types.ObjectId,
@@ -105,7 +103,10 @@ const saleSchema = new mongoose_1.default.Schema({
 }, {
     timestamps: true,
 });
-saleSchema.index({ createdAt: -1 });
-saleSchema.index({ customerId: 1, createdAt: -1 });
+// invoiceId must be unique per business, not globally
+saleSchema.index({ invoiceId: 1, businessId: 1 }, { unique: true });
+saleSchema.index({ businessId: 1, createdAt: -1 });
+saleSchema.index({ businessId: 1, customerId: 1, createdAt: -1 });
+saleSchema.index({ businessId: 1, paymentStatus: 1 });
 const Sale = mongoose_1.default.model("Sale", saleSchema);
 exports.default = Sale;

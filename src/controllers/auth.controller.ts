@@ -16,6 +16,8 @@ import {
   sendResetPasswordEmail,
   welcomeEmail,
 } from "../utils/email";
+import { createNotification } from "../utils/notification";
+
 
 // admin role seeded automatically for every new business
 const ADMIN_ROLE = {
@@ -255,6 +257,20 @@ export const login = async (
     }
 
     await User.findByIdAndUpdate(user._id, { lastLogin: new Date() });
+
+    // Fire a login activity notification (fire-and-forget)
+    const now = new Date().toLocaleString("en-NG", {
+      timeZone: "Africa/Lagos",
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+    createNotification(
+      user._id,
+      user.businessId,
+      "🔑 New Login",
+      `You logged in on ${now}. If this wasn't you, change your password immediately.`,
+      "info",
+    ).catch(console.error);
 
     const token = signToken(
       user._id.toString(),
@@ -572,10 +588,14 @@ export const changePassword = async (
     user.mustChangePassword = false;
     await user.save();
 
+    // Blacklist the current token so the user must re-login with the new password
+    const token = req.headers.authorization?.split(" ")[1];
+    if (token) await blacklistToken(token);
+
     return sendSuccess(
       res,
       HTTP_STATUS.OK,
-      "Password changed successfully",
+      "Password changed successfully. Please log in again.",
       null,
     );
   } catch (error) {

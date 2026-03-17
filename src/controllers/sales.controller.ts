@@ -10,6 +10,7 @@ import Counter from "../models/Counter";
 import Setting from "../models/Setting";
 import { IPayment } from "../types/sale.types";
 import { logAudit } from "../utils/auditLog";
+import { createNotification } from "../utils/notification";
 
 export const createSale = async (
   req: Request,
@@ -95,6 +96,18 @@ export const createSale = async (
       const stockBefore = product.currentStock;
       product.currentStock -= item.quantity;
       await product.save({ session });
+
+      // 6b. Fire low-stock notification if stock hits or falls below reorder level (fire-and-forget)
+      if (product.currentStock <= product.reorderLevel) {
+        createNotification(
+          req.user!._id,
+          businessId,
+          "⚠️ Low Stock Alert",
+          `"${product.name}" is running low — only ${product.currentStock} ${product.unit}(s) left (reorder level: ${product.reorderLevel}).`,
+          "warning",
+          product._id.toString(),
+        ).catch(console.error);
+      }
 
       validatedItems.push({
         productId: product._id,

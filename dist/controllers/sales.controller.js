@@ -14,6 +14,7 @@ const Customer_1 = __importDefault(require("../models/Customer"));
 const Counter_1 = __importDefault(require("../models/Counter"));
 const Setting_1 = __importDefault(require("../models/Setting"));
 const auditLog_1 = require("../utils/auditLog");
+const notification_1 = require("../utils/notification");
 const createSale = async (req, res, next) => {
     let session;
     try {
@@ -64,6 +65,10 @@ const createSale = async (req, res, next) => {
             const stockBefore = product.currentStock;
             product.currentStock -= item.quantity;
             await product.save({ session });
+            // 6b. Fire low-stock notification if stock hits or falls below reorder level (fire-and-forget)
+            if (product.currentStock <= product.reorderLevel) {
+                (0, notification_1.createNotification)(req.user._id, businessId, "⚠️ Low Stock Alert", `"${product.name}" is running low — only ${product.currentStock} ${product.unit}(s) left (reorder level: ${product.reorderLevel}).`, "warning", product._id.toString()).catch(console.error);
+            }
             validatedItems.push({
                 productId: product._id,
                 productName: product.name,

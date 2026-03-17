@@ -72,7 +72,7 @@ export const getAllSupplier = async (
         );
     }
 
-    const suppliers = await Supplier.find(filter);
+    const suppliers = await Supplier.find(filter).sort({ createdAt: -1 });
 
     return sendSuccess(
       res,

@@ -48,7 +48,7 @@ const getAllProducts = async (req, res, next) => {
             if (to)
                 filter.createdAt.$lte = new Date(to);
         }
-        const products = await Product_1.default.find(filter);
+        const products = await Product_1.default.find(filter).sort({ createdAt: -1 });
         return (0, response_1.sendSuccess)(res, config_1.HTTP_STATUS.OK, products.length > 0 ? config_1.PRODUCT_MESSAGES.FETCHED : "No products found", products);
     }
     catch (error) {

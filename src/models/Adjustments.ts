@@ -45,6 +45,9 @@ const adjustmentSchema = new mongoose.Schema<IAdjustment>(
   },
 );
 
+adjustmentSchema.index({ businessId: 1, createdAt: -1 });
+adjustmentSchema.index({ businessId: 1, productId: 1, createdAt: -1 });
+
 const Adjustment: Model<IAdjustment> = mongoose.model<IAdjustment>(
   "Adjustment",
   adjustmentSchema,

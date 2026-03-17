@@ -29,7 +29,6 @@ const productSchema = new mongoose_1.default.Schema({
     SKU: {
         type: String,
         required: true,
-        unique: true,
         uppercase: true,
     },
     currentStock: {
@@ -64,5 +63,8 @@ const productSchema = new mongoose_1.default.Schema({
 }, {
     timestamps: true,
 });
+// SKU must be unique per business, not globally
+productSchema.index({ SKU: 1, businessId: 1 }, { unique: true });
+productSchema.index({ businessId: 1 });
 const Product = mongoose_1.default.model("Product", productSchema);
 exports.default = Product;

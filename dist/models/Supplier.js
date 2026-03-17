@@ -36,5 +36,6 @@ const supplierSchema = new mongoose_1.default.Schema({
 }, {
     timestamps: true,
 });
+supplierSchema.index({ businessId: 1 });
 const Supplier = mongoose_1.default.model("Supplier", supplierSchema);
 exports.default = Supplier;

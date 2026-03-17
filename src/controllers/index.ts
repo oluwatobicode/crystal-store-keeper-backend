@@ -11,3 +11,4 @@ export * as dashboardController from "./dashboard.controller";
 export * as authController from "./auth.controller";
 export * as backupController from "./backup.controller";
 export * as webhookController from "./webhook.controller";
+export * as notificationController from "./notification.controller";

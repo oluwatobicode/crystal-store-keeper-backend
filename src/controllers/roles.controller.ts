@@ -94,7 +94,7 @@ export const getAllRoles = async (
         );
     }
 
-    const roles = await Role.find(filter);
+    const roles = await Role.find(filter).sort({ createdAt: -1 });
 
     return sendSuccess(
       res,

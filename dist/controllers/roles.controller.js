@@ -52,7 +52,7 @@ const getAllRoles = async (req, res, next) => {
             if (to)
                 filter.createdAt.$lte = new Date(to);
         }
-        const roles = await Role_1.default.find(filter);
+        const roles = await Role_1.default.find(filter).sort({ createdAt: -1 });
         return (0, response_1.sendSuccess)(res, config_1.HTTP_STATUS.OK, roles.length > 0 ? config_1.ROLE_MESSAGES.FETCHED : "No roles found", roles);
     }
     catch (error) {

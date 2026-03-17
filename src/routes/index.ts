@@ -12,3 +12,4 @@ export { default as authRoutes } from "./auth.routes";
 export { default as salesRoutes } from "./sales.routes";
 export { default as backupRoutes } from "./backup.routes";
 export { default as webhookRoutes } from "./webhook.routes";
+export { default as notificationRoutes } from "./notification.routes";

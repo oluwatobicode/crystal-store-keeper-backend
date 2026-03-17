@@ -53,7 +53,7 @@ const getAllCustomers = async (req, res, next) => {
             if (to)
                 filter.createdAt.$lte = new Date(to);
         }
-        const customers = await Customer_1.default.find(filter);
+        const customers = await Customer_1.default.find(filter).sort({ createdAt: -1 });
         return (0, response_1.sendSuccess)(res, config_1.HTTP_STATUS.OK, customers.length > 0 ? config_1.CUSTOMER_MESSAGES.FETCHED : "No customers found", customers);
     }
     catch (error) {

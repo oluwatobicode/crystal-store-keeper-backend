@@ -6,7 +6,6 @@ const customerSchema = new mongoose.Schema<ICustomer>(
     customerId: {
       type: String,
       required: true,
-      unique: true,
     },
     fullname: {
       type: String,
@@ -56,6 +55,10 @@ const customerSchema = new mongoose.Schema<ICustomer>(
     timestamps: true,
   },
 );
+
+// customerId must be unique per business, not globally
+customerSchema.index({ customerId: 1, businessId: 1 }, { unique: true });
+customerSchema.index({ businessId: 1 });
 
 const Customer: Model<ICustomer> = mongoose.model<ICustomer>(
   "Customer",

@@ -80,7 +80,7 @@ export const getAllProducts = async (
         );
     }
 
-    const products = await Product.find(filter);
+    const products = await Product.find(filter).sort({ createdAt: -1 });
 
     return sendSuccess(
       res,

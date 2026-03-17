@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.webhookRoutes = exports.backupRoutes = exports.salesRoutes = exports.authRoutes = exports.dashboardRoutes = exports.reportRoutes = exports.inventoryRoutes = exports.settingsRoutes = exports.auditLogsRoutes = exports.userRoutes = exports.rolesRoutes = exports.customerRoutes = exports.supplierRoutes = exports.productRoutes = void 0;
+exports.notificationRoutes = exports.webhookRoutes = exports.backupRoutes = exports.salesRoutes = exports.authRoutes = exports.dashboardRoutes = exports.reportRoutes = exports.inventoryRoutes = exports.settingsRoutes = exports.auditLogsRoutes = exports.userRoutes = exports.rolesRoutes = exports.customerRoutes = exports.supplierRoutes = exports.productRoutes = void 0;
 var product_routes_1 = require("./product.routes");
 Object.defineProperty(exports, "productRoutes", { enumerable: true, get: function () { return __importDefault(product_routes_1).default; } });
 var supplier_routes_1 = require("./supplier.routes");
@@ -32,3 +32,5 @@ var backup_routes_1 = require("./backup.routes");
 Object.defineProperty(exports, "backupRoutes", { enumerable: true, get: function () { return __importDefault(backup_routes_1).default; } });
 var webhook_routes_1 = require("./webhook.routes");
 Object.defineProperty(exports, "webhookRoutes", { enumerable: true, get: function () { return __importDefault(webhook_routes_1).default; } });
+var notification_routes_1 = require("./notification.routes");
+Object.defineProperty(exports, "notificationRoutes", { enumerable: true, get: function () { return __importDefault(notification_routes_1).default; } });

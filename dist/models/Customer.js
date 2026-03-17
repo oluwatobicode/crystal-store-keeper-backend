@@ -8,7 +8,6 @@ const customerSchema = new mongoose_1.default.Schema({
     customerId: {
         type: String,
         required: true,
-        unique: true,
     },
     fullname: {
         type: String,
@@ -56,5 +55,8 @@ const customerSchema = new mongoose_1.default.Schema({
 }, {
     timestamps: true,
 });
+// customerId must be unique per business, not globally
+customerSchema.index({ customerId: 1, businessId: 1 }, { unique: true });
+customerSchema.index({ businessId: 1 });
 const Customer = mongoose_1.default.model("Customer", customerSchema);
 exports.default = Customer;

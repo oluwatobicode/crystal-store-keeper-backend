@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { Types } from "mongoose";
-import { ERROR_MESSAGES, HTTP_STATUS, INVENTORY_MESSAGES } from "../config";
+import { HTTP_STATUS, INVENTORY_MESSAGES } from "../config";
 import { sendError, sendSuccess } from "../utils/response";
 import { logAudit } from "../utils/auditLog";
 import Product from "../models/Product";
@@ -240,7 +239,6 @@ export const getInventoryMovements = async (
         createdAt: -1,
       })
       .populate("productId");
-
     return sendSuccess(
       res,
       HTTP_STATUS.OK,

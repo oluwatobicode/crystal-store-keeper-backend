@@ -44,5 +44,7 @@ const adjustmentSchema = new mongoose_1.default.Schema({
 }, {
     timestamps: { createdAt: true, updatedAt: false },
 });
+adjustmentSchema.index({ businessId: 1, createdAt: -1 });
+adjustmentSchema.index({ businessId: 1, productId: 1, createdAt: -1 });
 const Adjustment = mongoose_1.default.model("Adjustment", adjustmentSchema);
 exports.default = Adjustment;

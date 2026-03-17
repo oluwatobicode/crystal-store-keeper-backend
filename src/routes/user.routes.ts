@@ -1,8 +1,28 @@
 import { Router } from "express";
-import { userController } from "../controllers";
+import { userController, authController } from "../controllers";
 import { protectRoutes, authorize } from "../middleware/auth.middlware";
+import { uploadImage } from "../middleware/upload.middleware";
 
 const router = Router();
+
+// GET /me — get own profile
+router.get("/me", protectRoutes, userController.getMe);
+
+// PATCH /me — update own name / contact number
+router.patch("/me", protectRoutes, userController.updateMe);
+
+// PATCH /me/password — change own password (requires current password)
+router.patch("/me/password", protectRoutes, authController.changePassword);
+
+// PATCH /me/avatar — upload own profile picture
+router.patch(
+  "/me/avatar",
+  protectRoutes,
+  uploadImage.single("avatar"),
+  userController.uploadOwnAvatar,
+);
+
+// ─── /:id — Admin routes (requires users.manage permission)
 
 router.post(
   "/",
@@ -18,11 +38,11 @@ router.get(
   userController.getAllUsers,
 );
 
-router.delete(
+router.get(
   "/:id",
   protectRoutes,
   authorize("users.manage"),
-  userController.deleteUser,
+  userController.getUser,
 );
 
 router.patch(
@@ -32,18 +52,26 @@ router.patch(
   userController.updateUser,
 );
 
-router.get(
-  "/:id",
-  protectRoutes,
-  authorize("users.manage"),
-  userController.getUser,
-);
-
 router.patch(
   "/:id/status",
   protectRoutes,
   authorize("users.manage"),
   userController.updateUserStatus,
+);
+
+router.patch(
+  "/:id/avatar",
+  protectRoutes,
+  authorize("users.manage"),
+  uploadImage.single("avatar"),
+  userController.uploadAvatar,
+);
+
+router.delete(
+  "/:id",
+  protectRoutes,
+  authorize("users.manage"),
+  userController.deleteUser,
 );
 
 export default router;

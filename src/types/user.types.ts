@@ -22,5 +22,6 @@ export interface IUser extends Document {
   lastLogin: Date | null;
   resetToken: string | null;
   resetTokenExpiry: Date | null;
+  avatarUrl: string | null;
   correctPassword(candidatePassword: string): Promise<boolean>;
 }

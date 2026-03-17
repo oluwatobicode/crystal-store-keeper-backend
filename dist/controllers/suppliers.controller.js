@@ -39,7 +39,7 @@ const getAllSupplier = async (req, res, next) => {
             if (to)
                 filter.createdAt.$lte = new Date(to);
         }
-        const suppliers = await Supplier_1.default.find(filter);
+        const suppliers = await Supplier_1.default.find(filter).sort({ createdAt: -1 });
         return (0, response_1.sendSuccess)(res, config_1.HTTP_STATUS.OK, suppliers.length > 0 ? config_1.SUPPLIER_MESSAGES.FETCHED : "No suppliers found", suppliers);
     }
     catch (error) {

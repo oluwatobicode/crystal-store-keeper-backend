@@ -71,6 +71,7 @@ const userSchema = new mongoose_1.default.Schema({
     },
     resetToken: { type: String, default: null, select: false },
     resetTokenExpiry: { type: Date, default: null, select: false },
+    avatarUrl: { type: String, default: null },
 }, {
     timestamps: true,
 });

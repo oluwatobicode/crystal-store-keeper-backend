@@ -16,6 +16,7 @@ import {
   salesRoutes,
   backupRoutes,
   webhookRoutes,
+  notificationRoutes,
 } from "./routes";
 import "./services/telegram.service";
 import cors from "cors";
@@ -68,6 +69,7 @@ app.use("/api/v1/reports", reportRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/backups", backupRoutes);
 app.use("/api/v1/webhooks", webhookRoutes);
+app.use("/api/v1/notifications", notificationRoutes);
 
 // webhook for the telegram bot
 bot.setWebHook(`${process.env.APP_URL}/api/v1/webhooks/telegram`);

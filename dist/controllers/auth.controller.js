@@ -16,6 +16,7 @@ const response_1 = require("../utils/response");
 const token_1 = require("../utils/token");
 const otp_1 = require("../utils/otp");
 const email_1 = require("../utils/email");
+const notification_1 = require("../utils/notification");
 // admin role seeded automatically for every new business
 const ADMIN_ROLE = {
     roleName: "Admin",
@@ -116,7 +117,7 @@ const signUp = async (req, res, next) => {
         // 7. send OTP email (fire-and-forget, don't block response)
         (0, email_1.sendOtpEmail)(owner.email, owner.fullname, otp).catch(console.error);
         // 8. sign token
-        const token = (0, token_1.signToken)(owner._id.toString(), owner.email, owner.fullname, owner.username, adminRole.roleName, adminRole.permission, business._id.toString());
+        const token = (0, token_1.signToken)(owner._id.toString(), owner.email, owner.fullname, owner.username, adminRole.roleName, adminRole.permissions, business._id.toString());
         return (0, response_1.sendSuccess)(res, config_1.HTTP_STATUS.CREATED, config_1.SUCCESS_MESSAGES.SIGNUP_SUCCESS, {
             business: {
                 _id: business._id,
@@ -162,7 +163,14 @@ const login = async (req, res, next) => {
             throw new AppError_1.AppError(config_1.HTTP_STATUS.UNAUTHORIZED, "Your account has been deactivated. Contact your admin");
         }
         await User_1.default.findByIdAndUpdate(user._id, { lastLogin: new Date() });
-        const token = (0, token_1.signToken)(user._id.toString(), user.email, user.fullname, user.username, user.role.roleName, user.role.permission, user.businessId.toString());
+        // Fire a login activity notification (fire-and-forget)
+        const now = new Date().toLocaleString("en-NG", {
+            timeZone: "Africa/Lagos",
+            dateStyle: "medium",
+            timeStyle: "short",
+        });
+        (0, notification_1.createNotification)(user._id, user.businessId, "🔑 New Login", `You logged in on ${now}. If this wasn't you, change your password immediately.`, "info").catch(console.error);
+        const token = (0, token_1.signToken)(user._id.toString(), user.email, user.fullname, user.username, user.role.roleName, user.role.permissions, user.businessId.toString());
         return (0, response_1.sendSuccess)(res, config_1.HTTP_STATUS.OK, config_1.SUCCESS_MESSAGES.LOGIN_SUCCESS, {
             token,
             user: {
@@ -174,7 +182,7 @@ const login = async (req, res, next) => {
                 role: {
                     _id: user.role._id,
                     roleName: user.role.roleName,
-                    permissions: user.role.permission,
+                    permissions: user.role.permissions,
                 },
             },
         });
@@ -341,7 +349,11 @@ const changePassword = async (req, res, next) => {
         user.password = newPassword;
         user.mustChangePassword = false;
         await user.save();
-        return (0, response_1.sendSuccess)(res, config_1.HTTP_STATUS.OK, "Password changed successfully", null);
+        // Blacklist the current token so the user must re-login with the new password
+        const token = req.headers.authorization?.split(" ")[1];
+        if (token)
+            await (0, token_1.blacklistToken)(token);
+        return (0, response_1.sendSuccess)(res, config_1.HTTP_STATUS.OK, "Password changed successfully. Please log in again.", null);
     }
     catch (error) {
         next(error);

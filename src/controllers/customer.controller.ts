@@ -97,7 +97,7 @@ export const getAllCustomers = async (
         );
     }
 
-    const customers = await Customer.find(filter);
+    const customers = await Customer.find(filter).sort({ createdAt: -1 });
 
     return sendSuccess(
       res,
