@@ -1,0 +1,28 @@
+name: Deploy Crystal Store
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+          HOST: ${{ secrets.EC2_HOST }}
+          USERNAME: ${{ secrets.EC2_USERNAME }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $USERNAME@$HOST << 'EOF'
+            cd ~/crystal-store-keeper-backend
+            git pull origin main
+            npm install
+            npm run build
+            pm2 restart crystal-store
+          EOF
+          rm -f private_key.pem
