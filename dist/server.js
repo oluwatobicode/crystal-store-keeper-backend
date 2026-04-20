@@ -10,7 +10,7 @@ const routes_1 = require("./routes");
 require("./services/telegram.service");
 const cors_1 = __importDefault(require("cors"));
 const error_middlware_1 = require("./middleware/error.middlware");
-const telegram_service_1 = __importDefault(require("./services/telegram.service"));
+// import bot from "./services/telegram.service";
 const app = (0, express_1.default)();
 const port = process.env.PORT || 5000;
 (0, db_config_1.connectDb)();
@@ -51,8 +51,9 @@ app.use("/api/v1/dashboard", routes_1.dashboardRoutes);
 app.use("/api/v1/backups", routes_1.backupRoutes);
 app.use("/api/v1/webhooks", routes_1.webhookRoutes);
 app.use("/api/v1/notifications", routes_1.notificationRoutes);
+app.use("/api/v1/credit", routes_1.creditRepaymentRoutes);
 // webhook for the telegram bot
-telegram_service_1.default.setWebHook(`${process.env.APP_URL}/api/v1/webhooks/telegram`);
+// bot.setWebHook(`${process.env.APP_URL}/api/v1/webhooks/telegram`);
 // global error handler (must be after routes)
 app.use(error_middlware_1.globalErrorHandler);
 // starting a server

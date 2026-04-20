@@ -36,7 +36,7 @@ const saleItemSchema = new mongoose_1.default.Schema({
 const paymentSchema = new mongoose_1.default.Schema({
     method: {
         type: String,
-        enum: ["cash", "pos", "bank_transfer"],
+        enum: ["cash", "pos", "bank_transfer", "credit"],
         required: true,
     },
     amount: {
@@ -100,6 +100,9 @@ const saleSchema = new mongoose_1.default.Schema({
         required: true,
     },
     notes: { type: String, default: null },
+    // for credit system
+    balanceDue: { type: Number, default: 0 },
+    creditDueDate: { type: Date, default: null },
 }, {
     timestamps: true,
 });

@@ -19,6 +19,7 @@ const createSale = async (req, res, next) => {
     let session;
     try {
         const businessId = req.businessId;
+        // credit feature
         // 1. Validate the request body
         const { items, payments, customerId, discountAmount, notes } = req.body;
         if (!items || !Array.isArray(items) || items.length === 0) {
@@ -91,15 +92,41 @@ const createSale = async (req, res, next) => {
             : 0;
         const vatAmount = (subTotal - (discountAmount || 0)) * vatRate;
         const grandTotal = subTotal - (discountAmount || 0) + vatAmount;
-        let amountPaid = 0;
-        payments.forEach((payment) => {
-            amountPaid += payment.amount;
-        });
-        // 8. Validate split payments: sum must equal grandTotal
-        if (Math.abs(amountPaid - grandTotal) > 0.01) {
+        // after step 7 extract amount
+        const creditPayment = payments.find((payment) => payment.method === "credit");
+        const creditAmount = creditPayment ? creditPayment.amount : 0;
+        const nonCreditAmount = payments
+            .filter((payment) => payment.method !== "credit")
+            .reduce((sum, payment) => sum + payment.amount, 0);
+        let amountPaid = nonCreditAmount;
+        // payments.forEach((payment: IPayment) => {
+        //   amountPaid += payment.amount;
+        // });
+        // Walk-in customer cannot buy on credit
+        if (creditAmount > 0 && !customerId) {
             await session.abortTransaction();
             session.endSession();
-            return (0, response_1.sendError)(res, config_1.HTTP_STATUS.BAD_REQUEST, `Payment total (${amountPaid}) does not match grand total (${grandTotal})`);
+            return (0, response_1.sendError)(res, config_1.HTTP_STATUS.BAD_REQUEST, "Credit sales require a registered customer");
+        }
+        if (creditAmount > 0 && customerId) {
+            const customer = await Customer_1.default.findById(customerId).session(session);
+            if (!customer) {
+                await session.abortTransaction();
+                session.endSession();
+                return (0, response_1.sendError)(res, config_1.HTTP_STATUS.NOT_FOUND, "Customer not found");
+            }
+            if (creditAmount + customer.currentBalance > customer.creditLimit) {
+                await session.abortTransaction();
+                session.endSession();
+                return (0, response_1.sendError)(res, config_1.HTTP_STATUS.BAD_REQUEST, "Credit limit exceeded");
+            }
+        }
+        // 8. Validate split payments: sum must equal grandTotal
+        const totalPayments = nonCreditAmount + creditAmount;
+        if (Math.abs(totalPayments - grandTotal) > 0.01) {
+            await session.abortTransaction();
+            session.endSession();
+            return (0, response_1.sendError)(res, config_1.HTTP_STATUS.BAD_REQUEST, `Payment total (${totalPayments}) does not match grand total (${grandTotal})`);
         }
         const paymentStatus = amountPaid >= grandTotal
             ? "paid"
@@ -135,6 +162,8 @@ const createSale = async (req, res, next) => {
                 paymentStatus,
                 businessId,
                 notes: notes || null,
+                balanceDue: grandTotal - nonCreditAmount,
+                creditDueDate: creditAmount > 0 ? req.body.creditDueDate || null : null,
             },
         ], { session });
         // 11. Create StockMovement records for each item
@@ -159,10 +188,10 @@ const createSale = async (req, res, next) => {
         if (customerId) {
             const owedAmount = grandTotal - amountPaid;
             const updateFields = {
-                totalSpent: amountPaid,
+                totalSpent: nonCreditAmount,
             };
             if (owedAmount > 0) {
-                updateFields.currentBalance = owedAmount;
+                updateFields.currentBalance = creditAmount;
             }
             await Customer_1.default.findByIdAndUpdate(customerId, { $inc: updateFields }, { session });
         }

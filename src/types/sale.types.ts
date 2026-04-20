@@ -10,7 +10,7 @@ export interface ISaleItem {
 }
 
 export interface IPayment {
-  method: "cash" | "pos" | "bank_transfer";
+  method: "cash" | "pos" | "bank_transfer" | "credit";
   amount: number;
   reference: string | null;
   businessId: Types.ObjectId;
@@ -35,4 +35,6 @@ export interface ISale extends Document {
   amountPaid: number;
   paymentStatus: "paid" | "partial" | "pending";
   notes: string | null;
+  balanceDue: number;
+  creditDueDate: Date | null;
 }

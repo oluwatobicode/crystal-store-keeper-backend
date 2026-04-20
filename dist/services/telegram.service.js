@@ -8,7 +8,7 @@ const Setting_1 = __importDefault(require("../models/Setting"));
 const ai_service_1 = require("./ai.service");
 const token = process.env.TELEGRAM_BOT_TOKEN;
 // polling = no webhook needed during development
-const bot = new node_telegram_bot_api_1.default(token, { polling: true });
+const bot = new node_telegram_bot_api_1.default(token, { polling: false });
 console.log("🤖 Telegram bot is running...");
 //  HELPER: send typing indicator
 const sendTyping = (chatId) => {

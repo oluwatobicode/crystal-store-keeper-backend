@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.notificationController = exports.webhookController = exports.backupController = exports.authController = exports.dashboardController = exports.reportController = exports.inventoryController = exports.settingsController = exports.auditLogController = exports.userController = exports.roleController = exports.supplierController = exports.customerController = exports.productController = void 0;
+exports.recordRepaymentController = exports.notificationController = exports.webhookController = exports.backupController = exports.authController = exports.dashboardController = exports.reportController = exports.inventoryController = exports.settingsController = exports.auditLogController = exports.userController = exports.roleController = exports.supplierController = exports.customerController = exports.productController = void 0;
 exports.productController = __importStar(require("./product.controller"));
 exports.customerController = __importStar(require("./customer.controller"));
 exports.supplierController = __importStar(require("./suppliers.controller"));
@@ -48,3 +48,4 @@ exports.authController = __importStar(require("./auth.controller"));
 exports.backupController = __importStar(require("./backup.controller"));
 exports.webhookController = __importStar(require("./webhook.controller"));
 exports.notificationController = __importStar(require("./notification.controller"));
+exports.recordRepaymentController = __importStar(require("./repayments.controller"));

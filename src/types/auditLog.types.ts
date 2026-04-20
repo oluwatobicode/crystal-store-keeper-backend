@@ -14,5 +14,6 @@ export interface IAuditLog extends Document {
     | "users"
     | "settings"
     | "auth"
-    | "backup";
+    | "backup"
+    | "credit";
 }
