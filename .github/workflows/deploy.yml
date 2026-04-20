@@ -1,28 +1,23 @@
-name: Deploy Crystal Store
+name: Debug SSH
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  debug:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Deploy to EC2
-        env:
-          PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
-          HOST: ${{ secrets.EC2_HOST }}
-          USERNAME: ${{ secrets.EC2_USERNAME }}
-        run: |
-          echo "$PRIVATE_KEY" > private_key.pem
-          chmod 600 private_key.pem
-          ssh -o StrictHostKeyChecking=no -i private_key.pem $USERNAME@$HOST << 'EOF'
-            cd ~/crystal-store-keeper-backend
-            git pull origin main
-            npm install
+      - name: Check server status
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 2m
+          script: |
+            pm2 list
+            pm2 logs crystal-store-keeper --lines 50
+            sudo systemctl status nginx
+            cd /home/ubuntu/crystal-store-keeper-backend
             npm run build
-            pm2 restart crystal-store
-          EOF
-          rm -f private_key.pem
+            pm2 restart crystal-store-keeper
