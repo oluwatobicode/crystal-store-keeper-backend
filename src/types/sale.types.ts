@@ -37,4 +37,6 @@ export interface ISale extends Document {
   notes: string | null;
   balanceDue: number;
   creditDueDate: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }

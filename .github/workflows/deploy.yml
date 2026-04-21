@@ -1,23 +1,25 @@
-name: Debug SSH
+name: Deploy Crystal Store
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  debug:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Check server status
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          Key: ${{ secrets.EC2_PRIVATE_KEY }}
-          command_timeout: 2m
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          command_timeout: 10m
           script: |
-            pm2 list
-            pm2 logs crystal-store-keeper --lines 50
-            sudo systemctl status nginx
-            cd /home/ubuntu/crystal-store-keeper-backend
+            cd ~/crystal-store-keeper-backend
+            git pull origin main
+            npm install
             npm run build
-            pm2 restart crystal-store-keeper
+            pm2 restart crystal-store
+            pm2 save

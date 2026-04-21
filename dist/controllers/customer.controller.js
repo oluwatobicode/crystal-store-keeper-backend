@@ -65,11 +65,30 @@ exports.getAllCustomers = getAllCustomers;
 const getACustomer = async (req, res, next) => {
     try {
         const businessId = req.businessId;
-        const customer = await Customer_1.default.findOne({ _id: req.params.id, businessId });
+        // Run both queries at the same time — no extra round-trip latency
+        const [customer, transactions] = await Promise.all([
+            Customer_1.default.findOne({ _id: req.params.id, businessId }),
+            Sale_1.default.find({ customerId: req.params.id, businessId })
+                .select("invoiceId grandTotal amountPaid balanceDue paymentStatus createdAt")
+                .sort({ createdAt: -1 })
+                .limit(20), // last 20 transactions — enough for a profile view
+        ]);
         if (!customer) {
             return (0, response_1.sendError)(res, config_1.HTTP_STATUS.NOT_FOUND, config_1.CUSTOMER_MESSAGES.NOT_FOUND);
         }
-        return (0, response_1.sendSuccess)(res, config_1.HTTP_STATUS.OK, config_1.CUSTOMER_MESSAGES.FETCHED_ONE, customer);
+        // Simplified transaction shape — only what a UI card needs
+        const simplifiedTransactions = transactions.map((t) => ({
+            invoiceId: t.invoiceId,
+            grandTotal: t.grandTotal,
+            amountPaid: t.amountPaid,
+            balanceDue: t.balanceDue,
+            paymentStatus: t.paymentStatus,
+            date: t.get("createdAt"),
+        }));
+        return (0, response_1.sendSuccess)(res, config_1.HTTP_STATUS.OK, config_1.CUSTOMER_MESSAGES.FETCHED_ONE, {
+            customer,
+            recentTransactions: simplifiedTransactions,
+        });
     }
     catch (error) {
         console.error("Get a customer error:", error);

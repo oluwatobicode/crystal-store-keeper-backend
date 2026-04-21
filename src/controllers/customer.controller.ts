@@ -119,23 +119,41 @@ export const getACustomer = async (
   try {
     const businessId = req.businessId!;
 
-    const customer = await Customer.findOne({ _id: req.params.id, businessId });
+    // Run both queries at the same time — no extra round-trip latency
+    const [customer, transactions] = await Promise.all([
+      Customer.findOne({ _id: req.params.id, businessId }),
+      Sale.find({ customerId: req.params.id, businessId })
+        .select(
+          "invoiceId grandTotal amountPaid balanceDue paymentStatus createdAt",
+        )
+        .sort({ createdAt: -1 })
+        .limit(20), // last 20 transactions — enough for a profile view
+    ]);
 
     if (!customer) {
       return sendError(res, HTTP_STATUS.NOT_FOUND, CUSTOMER_MESSAGES.NOT_FOUND);
     }
 
-    return sendSuccess(
-      res,
-      HTTP_STATUS.OK,
-      CUSTOMER_MESSAGES.FETCHED_ONE,
+    // Simplified transaction shape — only what a UI card needs
+    const simplifiedTransactions = transactions.map((t) => ({
+      invoiceId: t.invoiceId,
+      grandTotal: t.grandTotal,
+      amountPaid: t.amountPaid,
+      balanceDue: t.balanceDue,
+      paymentStatus: t.paymentStatus,
+      date: t.get("createdAt") as Date,
+    }));
+
+    return sendSuccess(res, HTTP_STATUS.OK, CUSTOMER_MESSAGES.FETCHED_ONE, {
       customer,
-    );
+      recentTransactions: simplifiedTransactions,
+    });
   } catch (error) {
     console.error("Get a customer error:", error);
     return next(error);
   }
 };
+
 
 export const updateCustomer = async (
   req: Request,
