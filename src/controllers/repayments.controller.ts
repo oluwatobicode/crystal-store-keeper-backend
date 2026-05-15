@@ -83,10 +83,7 @@ export const recordRepayment = async (
       businessId,
     );
 
-    return sendSuccess(res, HTTP_STATUS.OK, "Repayment recorded successfully", {
-      repaidCredit,
-      customer: updatedCustomer,
-    });
+    return sendSuccess(res, HTTP_STATUS.OK, "Repayment recorded successfully");
   } catch (error) {
     if (session) {
       await session.abortTransaction();

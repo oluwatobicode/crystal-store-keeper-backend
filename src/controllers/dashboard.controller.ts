@@ -91,7 +91,7 @@ export const getRecentTransactions = async (
     const businessId = req.businessId!;
     const recentTransactions = await Sale.find({ businessId })
       .sort({ createdAt: -1 })
-      .limit(10)
+      .limit(5)
       .select("invoiceId grandTotal paymentStatus createdAt customerSnapshot")
       .populate("customerId", "fullname phone");
 

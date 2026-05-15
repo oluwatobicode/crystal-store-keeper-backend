@@ -9,8 +9,12 @@ import Customer from "../models/Customer";
 import Counter from "../models/Counter";
 import Setting from "../models/Setting";
 import { IPayment } from "../types/sale.types";
+import { IRole } from "../types/role.types";
 import { logAudit } from "../utils/auditLog";
 import { createNotification } from "../utils/notification";
+
+// round money values to 2 decimal places to avoid float drift
+const round2 = (value: number): number => Math.round(value * 100) / 100;
 
 export const createSale = async (
   req: Request,
@@ -25,7 +29,8 @@ export const createSale = async (
     // credit feature
 
     // 1. Validate the request body
-    const { items, payments, customerId, discountAmount, notes } = req.body;
+    const { items, payments, customerId, globalDiscountPercent, notes } =
+      req.body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return sendError(res, HTTP_STATUS.BAD_REQUEST, "Items are required");
@@ -33,6 +38,23 @@ export const createSale = async (
 
     if (!payments || !Array.isArray(payments) || payments.length === 0) {
       return sendError(res, HTTP_STATUS.BAD_REQUEST, "Payments are required");
+    }
+
+    // Global discount is a percentage — validate range before anything else
+    const globalDiscount =
+      globalDiscountPercent === undefined || globalDiscountPercent === null
+        ? 0
+        : Number(globalDiscountPercent);
+    if (
+      Number.isNaN(globalDiscount) ||
+      globalDiscount < 0 ||
+      globalDiscount > 100
+    ) {
+      return sendError(
+        res,
+        HTTP_STATUS.BAD_REQUEST,
+        "globalDiscountPercent must be a number between 0 and 100",
+      );
     }
 
     // 2. Start a Mongoose session & transaction
@@ -49,6 +71,44 @@ export const createSale = async (
         HTTP_STATUS.INTERNAL_SERVER_ERROR,
         "Business settings not found",
       );
+    }
+
+    // 3b. Discount permission caps.
+    // Discounts up to the threshold need pos.discount.small (or large);
+    // discounts above the threshold need pos.discount.large.
+    // No discount permission at all means no discounts allowed.
+    const role = req.user!.role as unknown as IRole;
+    const permissions = role?.permissions || [];
+    const discountThreshold =
+      settings.system.managerApprovalDiscountThreshold ?? 15;
+
+    const checkDiscountPermission = (
+      percent: number,
+      label: string,
+    ): string | null => {
+      if (percent <= 0) return null;
+      if (percent > discountThreshold) {
+        if (!permissions.includes("pos.discount.large")) {
+          return `${label} discount of ${percent}% exceeds the ${discountThreshold}% limit and requires the large-discount permission`;
+        }
+      } else if (
+        !permissions.includes("pos.discount.small") &&
+        !permissions.includes("pos.discount.large")
+      ) {
+        return `${label} discount of ${percent}% requires discount permission`;
+      }
+      return null;
+    };
+
+    // Validate the global discount against the caller's permissions
+    const globalDiscountError = checkDiscountPermission(
+      globalDiscount,
+      "Global",
+    );
+    if (globalDiscountError) {
+      await session.abortTransaction();
+      session.endSession();
+      return sendError(res, HTTP_STATUS.FORBIDDEN, globalDiscountError);
     }
 
     // 4. Generate invoice ID atomically via Counter collection
@@ -84,6 +144,34 @@ export const createSale = async (
         );
       }
 
+      // Per-item discount (percentage) — validate range + permission
+      const itemDiscountPercent =
+        item.discountPercent === undefined || item.discountPercent === null
+          ? 0
+          : Number(item.discountPercent);
+      if (
+        Number.isNaN(itemDiscountPercent) ||
+        itemDiscountPercent < 0 ||
+        itemDiscountPercent > 100
+      ) {
+        await session.abortTransaction();
+        session.endSession();
+        return sendError(
+          res,
+          HTTP_STATUS.BAD_REQUEST,
+          `discountPercent for "${product.name}" must be a number between 0 and 100`,
+        );
+      }
+      const itemDiscountError = checkDiscountPermission(
+        itemDiscountPercent,
+        `Item "${product.name}"`,
+      );
+      if (itemDiscountError) {
+        await session.abortTransaction();
+        session.endSession();
+        return sendError(res, HTTP_STATUS.FORBIDDEN, itemDiscountError);
+      }
+
       if (product.currentStock < item.quantity) {
         await session.abortTransaction();
         session.endSession();
@@ -111,30 +199,47 @@ export const createSale = async (
         ).catch(console.error);
       }
 
+      const lineSubtotal = product.sellingPrice * item.quantity;
+      const lineTotal = round2(lineSubtotal * (1 - itemDiscountPercent / 100));
+
       validatedItems.push({
         productId: product._id,
         productName: product.name,
         businessId,
         quantity: item.quantity,
         unitPrice: product.sellingPrice,
-        total: product.sellingPrice * item.quantity,
+        discountPercent: itemDiscountPercent,
+        // line total AFTER the per-item discount
+        total: lineTotal,
         stockBefore,
         stockAfter: product.currentStock,
       });
     }
 
-    // 7. Calculate the money
+    // 7. Calculate the money — the backend is the source of truth
     let subTotal = 0;
+    let afterItemDiscounts = 0;
     validatedItems.forEach((item) => {
       subTotal += item.unitPrice * item.quantity;
+      // item.total is already net of the per-item discount
+      afterItemDiscounts += item.total;
     });
+    subTotal = round2(subTotal);
 
-    // VAT is read from settings — never trust the client
+    // Global discount applies AFTER item discounts
+    const afterGlobalDiscount = round2(
+      afterItemDiscounts * (1 - globalDiscount / 100),
+    );
+
+    // VAT rate is read from settings — never trust the client
     const vatRate = settings.system.vatEnabled
       ? settings.system.vatRate / 100
       : 0;
-    const vatAmount = (subTotal - (discountAmount || 0)) * vatRate;
-    const grandTotal = subTotal - (discountAmount || 0) + vatAmount;
+    const vatAmount = round2(afterGlobalDiscount * vatRate);
+    const grandTotal = round2(afterGlobalDiscount + vatAmount);
+
+    // total discount in naira (item + global combined) — for the receipt
+    const discountAmount = round2(subTotal - afterGlobalDiscount);
 
     // after step 7 extract amount
     const creditPayment = payments.find(
@@ -220,7 +325,8 @@ export const createSale = async (
           items: validatedItems,
           payments,
           subTotal,
-          discountAmount: discountAmount || 0,
+          globalDiscountPercent: globalDiscount,
+          discountAmount,
           vatRate: vatRate || 0,
           vatAmount,
           grandTotal,
@@ -396,6 +502,7 @@ export const getSaleInvoice = async (
       salesPerson: sale.salesPersonId,
       items: sale.items,
       subTotal: sale.subTotal,
+      globalDiscountPercent: sale.globalDiscountPercent,
       discountAmount: sale.discountAmount,
       vatRate: sale.vatRate,
       vatAmount: sale.vatAmount,

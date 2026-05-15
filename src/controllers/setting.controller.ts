@@ -3,6 +3,7 @@ import Setting from "../models/Setting";
 import { sendError, sendSuccess } from "../utils/response";
 import { BUSINESS_MESSAGES, ERROR_MESSAGES, HTTP_STATUS } from "../config";
 import { logAudit } from "../utils/auditLog";
+import { IRole } from "../types/role.types";
 import crypto from "crypto";
 
 // this is to get the settings (single document)
@@ -20,12 +21,37 @@ export const getBusinessProfile = async (
       return sendSuccess(res, HTTP_STATUS.OK, BUSINESS_MESSAGES.NOT_FOUND, {});
     }
 
-    return sendSuccess(
-      res,
-      HTTP_STATUS.OK,
-      BUSINESS_MESSAGES.FETCHED,
-      settings,
-    );
+    // Derive a `pos` block so the POS can pre-validate discounts:
+    // - discountThreshold: small/large boundary (%)
+    // - discountPermission: the current user's discount tier
+    // - maxDiscountPercent: highest discount this user may apply (%)
+    const role = req.user!.role as unknown as IRole;
+    const permissions = role?.permissions || [];
+    const discountThreshold =
+      settings.system.managerApprovalDiscountThreshold ?? 15;
+
+    const discountPermission: "large" | "small" | "none" =
+      permissions.includes("pos.discount.large")
+        ? "large"
+        : permissions.includes("pos.discount.small")
+          ? "small"
+          : "none";
+
+    const maxDiscountPercent =
+      discountPermission === "large"
+        ? 100
+        : discountPermission === "small"
+          ? discountThreshold
+          : 0;
+
+    return sendSuccess(res, HTTP_STATUS.OK, BUSINESS_MESSAGES.FETCHED, {
+      ...settings.toObject(),
+      pos: {
+        discountThreshold,
+        discountPermission,
+        maxDiscountPercent,
+      },
+    });
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error("Get settings error:", error);

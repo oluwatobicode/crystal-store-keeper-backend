@@ -6,6 +6,9 @@ export interface ISaleItem {
   productName: string;
   quantity: number;
   unitPrice: number;
+  // per-item discount entered as a percentage
+  discountPercent: number;
+  // line total AFTER the per-item discount
   total: number;
 }
 
@@ -27,6 +30,9 @@ export interface ISale extends Document {
   items: ISaleItem[];
   payments: IPayment[];
   subTotal: number;
+  // order-wide discount entered as a percentage
+  globalDiscountPercent: number;
+  // total discount in naira (item + global combined)
   discountAmount: number;
   vatRate: number;
   vatAmount: number;

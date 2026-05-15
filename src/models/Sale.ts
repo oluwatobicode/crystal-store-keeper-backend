@@ -26,6 +26,12 @@ const saleItemSchema = new mongoose.Schema<ISaleItem>(
       type: Number,
       required: true,
     },
+    discountPercent: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
     total: {
       type: Number,
       required: true,
@@ -95,6 +101,7 @@ const saleSchema = new mongoose.Schema<ISale>(
       },
     },
     subTotal: { type: Number, required: true },
+    globalDiscountPercent: { type: Number, default: 0, min: 0, max: 100 },
     discountAmount: { type: Number, default: 0 },
     vatRate: { type: Number, required: true },
     vatAmount: { type: Number, required: true },
